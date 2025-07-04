@@ -7,8 +7,14 @@ const cartItemSchema = new mongoose.Schema(
     dishId: { type: mongoose.Schema.Types.ObjectId,ref:'dish', require: true },
     quantity: { type: Number, required: true },
     note: { type: String, default: "" },
+    selectedOptions:[
+      {
+        optionName:{ type: String, required: true },
+        choiceName:{ type: String, required: true },
+        price:{ type: Number, required: true }
+      }
+    ]
   },
-  { _id: false }
 );
 
 const userSchema = new mongoose.Schema(

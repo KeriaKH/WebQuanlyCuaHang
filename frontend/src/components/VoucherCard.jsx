@@ -3,7 +3,7 @@ import { formatCurrencyVN } from "../utils/Format";
 
 export default function VoucherCard({ voucher, onSelect,subtotal }) {
   const handleSelect=()=>{
-    if(subtotal>=voucher.minimumOrderAmount)
+    if(subtotal>=voucher.minimum)
       onSelect()
     else
       alert("chưa đủ điều kiện sử dụng voucher")
@@ -21,7 +21,7 @@ export default function VoucherCard({ voucher, onSelect,subtotal }) {
           Giảm {formatCurrencyVN(voucher.value)} trên tổng hóa đơn
         </p>
         <p className="text-red-500 text-sm">
-          Hóa đơn tối thiểu {formatCurrencyVN(voucher.minimumOrderAmount)}
+          Hóa đơn tối thiểu {formatCurrencyVN(voucher.minimum)}
         </p>
       </div>
     </div>

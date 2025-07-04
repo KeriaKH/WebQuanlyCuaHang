@@ -6,16 +6,14 @@ import { formatCurrencyVN } from "../utils/Format";
 import ProductPopUp from "./ProductPopUp";
 
 export default function CartItem({
-  orderId,
   cartItem,
-  index,
   token,
   reloadCart,
   handleDelete,
 }) {
   const [showPopup, setShowPopup] = useState(false);
   const deleteOne = async () => {
-    await handleDelete(orderId, token, index);
+    await handleDelete(cartItem._id);
     reloadCart();
   };
   return (
@@ -39,12 +37,21 @@ export default function CartItem({
               (item) => item.optionName + ": " + item.choiceName + ", "
             )}
           </p>
-          <p>Ghi chú: {cartItem.dishId.note}</p>
+          <p className="font-medium">
+            Ghi chú: <span className="font-normal">{cartItem.note}</span>
+          </p>
         </div>
         <p className="font-semibold">Số lượng: {cartItem.quantity}</p>
         <div className="flex-col justify-between flex">
           <p className="font-semibold">
-            {formatCurrencyVN(cartItem.dishId.price)}
+            {formatCurrencyVN(
+              (cartItem.dishId.price +
+                cartItem.selectedOptions?.reduce(
+                  (sum, option) => sum + option.price,
+                  0
+                )) *
+                  cartItem.quantity
+            )}
           </p>
           <div className="text-red-700 ">
             <button onClick={() => setShowPopup(true)}>Chỉnh sửa</button>
@@ -55,10 +62,13 @@ export default function CartItem({
         <ProductPopUp
           handleClose={setShowPopup}
           cartItem={cartItem.dishId}
-          orderId={orderId}
-          index={index}
           token={token}
+          isEdit={true}
           reloadCart={reloadCart}
+          Quantity={cartItem.quantity}
+          Note={cartItem.note}
+          CartItemId={cartItem._id}
+          options={cartItem.selectedOptions}
         />
       )}
     </div>

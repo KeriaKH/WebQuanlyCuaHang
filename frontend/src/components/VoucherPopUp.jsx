@@ -1,19 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import VoucherCard from "./VoucherCard";
 
-export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,subtotal}) {
+export default function VoucherPopUp({
+  handleClose,
+  vouchers,
+  onSelectVoucher,
+  subtotal,
+}) {
   const selectRef = useRef(null);
-  const [voucherCode,setVoucherCode]=useState()
-  
-  const handleSelect=()=>{
-    if(!voucherCode)
-      return
-    const found=vouchers.find(v=>v.code===voucherCode)
-    if(found)
-      onSelectVoucher(found)
-    else
-      alert("Mã giảm giá không hợp lệ!");
-  }
+  const [voucherCode, setVoucherCode] = useState("");
+
+  const handleSelect = () => {
+    if (!voucherCode) return;
+    const found = vouchers.find((v) => v.code === voucherCode);
+    if (found) onSelectVoucher(found);
+    else alert("Mã giảm giá không hợp lệ!");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -42,9 +44,12 @@ export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,su
             id=""
             placeholder="nhập mã giảm giá của bạn"
             className="border p-2 w-[80%] rounded-xl"
-            onChange={(e)=>setVoucherCode(e.target.value)}
+            onChange={(e) => setVoucherCode(e.target.value)}
           />
-          <button className="text-white p-3 px-5 bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-2xl" onClick={handleSelect}>
+          <button
+            className="text-white p-3 px-5 bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-2xl"
+            onClick={handleSelect}
+          >
             Áp dụng
           </button>
         </div>
@@ -52,13 +57,24 @@ export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,su
           Hoặc chọn mã giảm giá của bạn.
         </p>
         <div className="space-y-6 ">
-          {vouchers.length!==0 ? (
-            vouchers.map((item, index) => (
-              <VoucherCard key={index} voucher={item} onSelect={() => onSelectVoucher(item)} subtotal={subtotal}/>
-            ))
+          {vouchers.length !== 0 ? (
+            vouchers
+              .filter((item) =>
+                item.code?.toLowerCase().includes(voucherCode.toLowerCase())
+              )
+              .map((item, index) => (
+                <VoucherCard
+                  key={index}
+                  voucher={item}
+                  onSelect={() => onSelectVoucher(item)}
+                  subtotal={subtotal}
+                />
+              ))
           ) : (
             <div className="h-50 w-full flex items-center justify-center">
-              <p className="font-bold text-2xl text-gray-400">Hiện tại không có mã giảm giá nào</p>
+              <p className="font-bold text-2xl text-gray-400">
+                Hiện tại không có mã giảm giá nào
+              </p>
             </div>
           )}
         </div>

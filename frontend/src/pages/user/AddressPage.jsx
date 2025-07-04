@@ -3,15 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import AddressItem from "../../components/AddressItem";
 import AddressPopUp from "../../components/AddressPopUp";
+import { useAuth } from "../../components/common/AuthContext";
 import {
   addAddress,
   deleteAddress,
   getAddress,
-  updateAddress,
-  updatedUser,
+  updateAddress
 } from "../../services/userServices/Service";
-import { useAuth } from "../../components/common/AuthContext";
-import { Await } from "react-router-dom";
 
 export default function AddressPage() {
   const [addresses, setAddresses] = useState([]);
@@ -29,6 +27,7 @@ export default function AddressPage() {
       console.log(res);
       setAddresses(res);
     });
+    
   }, [user]);
 
   // Mở modal thêm mới
@@ -127,7 +126,7 @@ export default function AddressPage() {
 
         {/* Danh sách địa chỉ */}
         <div className="space-y-4">
-          {addresses.length === 0 ? (
+          {addresses ? (
             <div className="text-center py-12">
               <FontAwesomeIcon
                 icon={faLocationDot}
@@ -143,7 +142,7 @@ export default function AddressPage() {
               </button>
             </div>
           ) : (
-            addresses.map((address, index) => (
+            addresses?.map((address, index) => (
               <AddressItem
                 address={address}
                 handleEdit={handleEdit}

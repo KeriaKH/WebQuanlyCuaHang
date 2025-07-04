@@ -1,33 +1,35 @@
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
-import { getDishbyId } from "../services/hosResServices/Product";
-import { addCartItem } from "../services/userServices/dishService";
+import { addCartItem, updateCartItem } from "../services/userServices/dishService";
 import { formatCurrencyVN } from "../utils/Format";
 import { useAuth } from "./common/AuthContext";
 
 export default function ProductPopUp({
-  orderId,
   cartItem,
   handleClose,
-
+  isEdit=false,
+  reloadCart,
+  Quantity,
+  Note,
+  options,
+  CartItemId
 }) {
   const productRef = useRef(null);
   const { user } = useAuth();
   const [showError, setShowError] = useState(false);
-  const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
-  const [dish, setDish] = useState({});
-  const [note, setnote] = useState(cartItem?.note || "");
+  const [quantity, setQuantity] = useState(Quantity || 1);
+  const [note, setnote] = useState(Note || "");
   const [selectedOptions, setSelectedOptions] = useState(() => {
-    if (cartItem?.selectedOptions) {
-      return cartItem.selectedOptions;
+    if (options && options.length > 0) {
+      return options;
     }
     return [];
   });
   const [data, setData] = useState({
     dishId: cartItem?._id,
     quantity: quantity,
-    // selectedOptions: selectedOptions,
+    selectedOptions: selectedOptions,
     note: note,
   });
 
@@ -38,21 +40,24 @@ export default function ProductPopUp({
     );
   };
 
-  const hanndleOptionsChange = (optIndex, choiceName, optionName) => {
+  const hanndleOptionsChange = (optIndex, choiceName, optionName,price) => {
     setSelectedOptions((prev) => {
       const newOptions = [...prev];
       const existingOptionIndex = newOptions.findIndex(
         (_, index) => index === optIndex
       );
+      console.log(existingOptionIndex);
       if (existingOptionIndex !== -1) {
         newOptions[existingOptionIndex] = {
           optionName,
           choiceName,
+          price
         };
       } else {
         newOptions.push({
           optionName,
           choiceName,
+          price
         });
       }
       setData({ ...data, selectedOptions: newOptions });
@@ -61,36 +66,16 @@ export default function ProductPopUp({
   };
 
   const handleSave = async () => {
+    if(isEdit)
+    {
+      await updateCartItem(user.id, {...data, _id: CartItemId});
+      reloadCart();
+      handleClose(false)
+      return;
+    }
     await addCartItem(user.id, data);
-    handleClose(false);
-    // if (!orderId) {
-    //   if (dish.options.length === selectedOptions.length) {
-    //     await addCartItem(user.id,data)
-    //     reloadShop();
-    //     handleClose(false);
-    //   } else setShowError(true);
-    // } else {
-    //   const { dishId, ...exceptId } = data;
-    //   const cleanedSelectedOptions = exceptId.selectedOptions.map(
-    //     ({ additionalPrice, ...rest }) => rest
-    //   );
-    //   const cleanedExceptId = {
-    //     ...exceptId,
-    //     selectedOptions: cleanedSelectedOptions,
-    //   };
-    //   console.log(cleanedExceptId);
-    //   await updateCart(orderId, token, cleanedExceptId, index);
-    //   reloadCart();
-    //   handleClose(false);
-    // }
+    handleClose(false)
   };
-
-  useEffect(() => {
-    getDishbyId(cartItem?.dishId || cartItem?.id).then((res) => {
-      console.log(res);
-      setDish(res);
-    });
-  }, [cartItem]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -115,10 +100,10 @@ export default function ProductPopUp({
         <div className="p-6">
           <div className="pb-3 mb-2 space-y-2">
             <div className="font-semibold flex justify-between">
-              <p>{cartItem?.dishName || cartItem?.name}</p>
+              <p>{cartItem?.name}</p>
               <p>{formatCurrencyVN(cartItem?.price)}</p>
             </div>
-            <p className="text-gray-400 text-sm">{dish.description}</p>
+            <p className="text-gray-400 text-sm">{cartItem.description}</p>
           </div>
           {showError && (
             <div className="text-red-500 bg-red-100 p-2 font-semibold text-center">
@@ -126,9 +111,9 @@ export default function ProductPopUp({
             </div>
           )}
           <div className="mb-4 ">
-            {dish?.options?.map((item, index) => (
+            {cartItem?.option?.map((item, index) => (
               <div key={index}>
-                <p className="font-semibold mb-2">{item.name}</p>
+                <p className="font-semibold mb-2">{item.optionName}</p>
                 {item.choices?.map((item1, index1) => (
                   <div className="flex justify-between space-y-2" key={index1}>
                     <div className="flex space-x-2">
@@ -137,7 +122,7 @@ export default function ProductPopUp({
                         value={item1.name}
                         checked={isChoiceSelected(index, item1.name)}
                         onChange={() =>
-                          hanndleOptionsChange(index, item1.name, item.name)
+                          hanndleOptionsChange(index, item1.name, item.optionName,item1.price)
                         }
                       />
                       <p>{item1.name}</p>
@@ -189,7 +174,7 @@ export default function ProductPopUp({
               }}
               className="bg-[rgba(227,70,63,1)] hover:bg-red-700 transition text-white px-4 py-2 rounded"
             >
-              {!orderId ? "Thêm món" : "Thay đổi"}
+              {!isEdit ? "Thêm món" : "Thay đổi"}
             </button>
           </div>
         </div>

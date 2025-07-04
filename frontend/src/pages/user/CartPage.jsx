@@ -1,17 +1,16 @@
-import {
-  faAngleLeft,
-  faAngleRight,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import CartItem from "../../components/CartItem";
-import VoucherPopUp from "../../components/voucherPopUp";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CartItem from "../../components/CartItem";
 import { useAuth } from "../../components/common/AuthContext";
-import { deleteCart, getVoucher } from "../../services/userServices/Service";
+import VoucherPopUp from "../../components/voucherPopUp";
+import {
+  deleteCartItem,
+  getCart,
+} from "../../services/userServices/dishService";
 import { formatCurrencyVN } from "../../utils/Format";
-import { getCart } from "../../services/userServices/dishService";
+import { getVoucher } from "../../services/userServices/voucherService";
 
 export default function CartPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -19,7 +18,6 @@ export default function CartPage() {
   const [vouchers, setVouchers] = useState();
   const [subtotal, setSubtotal] = useState(0);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
-  const [selectedRes, setSelectedRes] = useState();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -28,51 +26,35 @@ export default function CartPage() {
     setShowPopup(false);
   };
 
-  const handleSelectRes = (item) => {
-    if (selectedRes?.restaurantId === item.restaurantId) {
-      setSelectedRes(null);
-      setSubtotal(0);
-    } else {
-      setSelectedRes(item);
-      setSubtotal(item.summary.subtotal);
-    }
-  };
-
   const reloadCart = async () => {
-    await getCart(user.token).then((res) => {
+    await getCart(user.id).then((res) => {
       setCart(res.cart);
-      setSubtotal(res.subtotal)
+      setSubtotal(res.subtotal);
     });
   };
 
-  const handleDeleteCart = async (orderId, token, index) => {
-    await deleteCart(orderId, token, index);
-  };
-
-  const handleDeleteResCart = async (res) => {
-    for (let i = res.items.length - 1; i >= 0; i--) {
-      await deleteCart(res.id, user.token, i);
-    }
-    reloadCart();
+  const handleDeleteCart = async (cartItemId) => {
+    await deleteCartItem(user.id, cartItemId);
   };
 
   const handlePayment = () => {
-    if (selectedRes) {
-      navigate("/payment", {
-        state: {
-          cart: { id: selectedRes.id, items: selectedRes.items },
-          subtotal: subtotal,
-          discount: selectedVoucher,
-        },
-      });
-    } else alert("Chưa chọn món ăn");
+    navigate("/payment", {
+      state: {
+        cart: {},
+        subtotal: subtotal,
+        discount: selectedVoucher,
+      },
+    });
   };
 
   useEffect(() => {
     getCart(user.id).then((res) => {
-      console.log(res);
       setCart(res.cart);
       setSubtotal(res.subtotal);
+    });
+    getVoucher(user.id).then((res) => {
+      console.log(res);
+      setVouchers(res);   
     });
   }, [user]);
 
@@ -111,8 +93,6 @@ export default function CartPage() {
                   <CartItem
                     key={index}
                     cartItem={item}
-                    orderId={item.id}
-                    index={index}
                     token={user.token}
                     reloadCart={reloadCart}
                     handleDelete={handleDeleteCart}

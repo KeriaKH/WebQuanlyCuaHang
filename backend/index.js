@@ -7,6 +7,7 @@ const userRoute=require('./routes/user')
 const dishRoute=require('./routes/dish')
 const categoryRoute=require('./routes/category')
 const reviewRoute=require('./routes/review')
+const voucherRoute=require('./routes/voucher')
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use('/api/user',userRoute)
 app.use('/api/dish',dishRoute)
 app.use('/api/category',categoryRoute)
 app.use('/api/review',reviewRoute)
+app.use('/api/voucher',voucherRoute)
 
 const Port = process.env.PORT || 3000;
 
