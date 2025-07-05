@@ -5,106 +5,61 @@ import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
 import { useAuth } from "../../components/common/AuthContext";
-import {
-  createOrder,
-  getAddress,
-  UseVoucher
-} from "../../services/userServices/Service";
-import { formatCurrencyVN } from "../../utils/Format";
+import { getAddress } from "../../services/userServices/addressService";
+import { formatAddress, formatCurrencyVN } from "../../utils/Format";
+import { checkout } from "../../services/userServices/orderService";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
-  const [addressMethod, setAddressMethod] = useState("select");
   const [selectedAddress, setSelectedAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [addressDetail, setAddressDetail] = useState({
-    address: selectedAddress,
-    note: "",
-    name: "",
-    email: "",
-    phone: "",
-    method: "",
-  });
+  const [order, setOrder] = useState({});
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const cart = location.state?.cart || [];
   const subtotal = location.state?.subtotal;
   const discount = location.state?.discount || {};
-
+  console.log(cart)
   useEffect(() => {
-    getAddress(user.userId, user.token).then((res) => {
+    getAddress(user.id).then((res) => {
       console.log(res);
       setAddresses(res);
       const defaultAddr = res.find((item) => item.default);
       if (defaultAddr) {
-        setAddressDetail((prev) => ({
+        setOrder((prev) => ({
           ...prev,
-          address: defaultAddr.fullAddress + " (" + defaultAddr.title + ")",
+          address: defaultAddr,
         }));
-        setSelectedAddress(
-          defaultAddr.fullAddress + " (" + defaultAddr.title + ")"
-        );
+        setSelectedAddress(defaultAddr._id);
       }
     });
   }, [user]);
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
-    setAddressDetail({ ...addressDetail, method: event.target.value });
+    setOrder({ ...order, paymentMethod: event.target.value });
   };
 
   const handleSubmit = async () => {
-    const { note, ...fieldsToCheck } = addressDetail;
-    const isFilled = Object.values(fieldsToCheck).every(
-      (value) => value && value.trim() !== ""
-    );
+    const isFilled = order.address && order.paymentMethod;
     if (!isFilled) {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-
-    let orderData = {};
-
-    if (discount.value) {
-      orderData = {
-        cartId: cart.id,
-        deliveryInfo: {
-          fullAddress: addressDetail.address,
-          district: "Quận 3",
-          city: "TP.HCM",
-          customerName: addressDetail.name,
-          customerPhone: addressDetail.phone,
-          deliveryInstructions: addressDetail.note,
-        },
-        paymentInfo: {
-          method: paymentMethod,
-        },
-        promoInfo: {
-          code: discount.code || "",
-        },
-      };
-    } else {
-      orderData = {
-        cartId: cart.id,
-        deliveryInfo: {
-          fullAddress: addressDetail.address,
-          district: "Quận 3",
-          city: "TP.HCM",
-          customerName: addressDetail.name,
-          customerPhone: addressDetail.phone,
-          deliveryInstructions: addressDetail.note,
-        },
-        paymentInfo: {
-          method: paymentMethod,
-        },
-      };
-    }
-
-    await createOrder(user.token, orderData); 
-
+    const tmp = {
+      ...order,
+      orderItem: cart.map((item) => ({
+        ...item,
+        price: item.dishId.price,
+        dishId: item.dishId._id,
+      })),
+      userId:user.id,
+      voucherId:discount._id
+    };
+    await checkout(tmp).then(res=>console.log(res))
     navigate("/tracking", {
-      state: { cart: cart.items, addressDetail, subtotal, discount },
+      state: { cart, tmp, subtotal, discount },
     });
   };
   return (
@@ -126,69 +81,33 @@ export default function PaymentPage() {
           <div className="p-4 shadow rounded-3xl bg-white px-7 space-y-3">
             <h3 className="font-semibold ">Giao đến</h3>
             <div className="flex items-center space-x-4">
-              <input
-                type="radio"
-                name=""
-                id=""
-                value={"select"}
-                checked={addressMethod === "select"}
-                onChange={(e) => setAddressMethod(e.target.value)}
-              />
-              <p className="font-semibold text-sm text-gray-400">
-                Chọn địa chỉ
-              </p>
               <select
-                value={selectedAddress}
+                value={selectedAddress || ""}
                 onChange={(e) => {
                   setSelectedAddress(e.target.value);
-                  setAddressDetail({
-                    ...addressDetail,
-                    address: e.target.value,
+                  console.log(e.target.value);
+                  const addr = addresses.find(
+                    (item) => item._id === e.target.value
+                  );
+                  setOrder({
+                    ...order,
+                    address: addr,
                   });
                 }}
-                disabled={addressMethod !== "select"}
-                className={`w-[80%] px-4 py-3 border ${
-                  addressMethod !== "select"
-                    ? "bg-gray-200 cursor-not-allowed text-gray-500"
-                    : "hover:border-gray-400"
-                } border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200 cursor-pointer`}
+                className={`w-full px-4 py-3 border 
+                    hover:border-gray-400
+                border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200 cursor-pointer`}
               >
-                {addresses.map((item, index) => (
+                {addresses.map((item) => (
                   <option
-                    value={item.fullAddress + " (" + item.title + ")"}
-                    key={index}
+                    value={item._id || ""}
+                    key={item._id}
                     className="py-2 px-4 text-gray-900 hover:bg-blue-50"
                   >
-                    {item.fullAddress + " (" + item.title + ")"}
+                    {formatAddress(item)} ({item.phone})
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="items-center flex space-x-4">
-              <input
-                type="radio"
-                value={"write"}
-                checked={addressMethod === "write"}
-                onChange={(e) => setAddressMethod(e.target.value)}
-              />
-              <p className="font-semibold text-sm text-gray-400">
-                Hoặc nhập địa chỉ
-              </p>
-              <input
-                type="text"
-                onChange={(e) =>
-                  setAddressDetail({
-                    ...addressDetail,
-                    address: e.target.value,
-                  })
-                }
-                disabled={addressMethod !== "write"}
-                className={`w-[80%] px-4 py-3 border ${
-                  addressMethod !== "write"
-                    ? "bg-gray-200 cursor-not-allowed text-gray-500"
-                    : "hover:border-gray-400"
-                } border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200`}
-              />
             </div>
             <p className="font-semibold my-3">Ghi chú</p>
             <input
@@ -196,53 +115,11 @@ export default function PaymentPage() {
               name=""
               id=""
               placeholder="Ghi chú cho giao hàng, ví dụ: tầng phòng,..."
-              onChange={(e) =>
-                setAddressDetail({ ...addressDetail, note: e.target.value })
-              }
-              className="border p-3 w-full rounded-2xl"
+              onChange={(e) => setOrder({ ...order, note: e.target.value })}
+              className="w-full px-4 py-3 border 
+                    hover:border-gray-400
+                border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200"
             />
-          </div>
-          <div className="p-4 shadow rounded-3xl bg-white px-7">
-            <h3 className="font-semibold text-xl mb-7">Người đặt hàng</h3>
-            <div>
-              <p className="font-semibold my-3">Họ và tên</p>
-              <input
-                type="text"
-                name=""
-                id=""
-                onChange={(e) =>
-                  setAddressDetail({ ...addressDetail, name: e.target.value })
-                }
-                placeholder="Nhập họ tên đầy đủ của bạn"
-                className="border p-3 w-full rounded-2xl"
-              />
-            </div>
-            <div>
-              <p className="font-semibold my-3">Email</p>
-              <input
-                type="text"
-                name=""
-                id=""
-                onChange={(e) =>
-                  setAddressDetail({ ...addressDetail, email: e.target.value })
-                }
-                placeholder="Nhập email của bạn"
-                className="border p-3 w-full rounded-2xl"
-              />
-            </div>
-            <div>
-              <p className="font-semibold my-3">Số điện thoại</p>
-              <input
-                type="text"
-                name=""
-                id=""
-                onChange={(e) =>
-                  setAddressDetail({ ...addressDetail, phone: e.target.value })
-                }
-                placeholder="Nhập số điện thoại của bạn"
-                className="border p-3 w-full rounded-2xl"
-              />
-            </div>
           </div>
           <div className="p-4 shadow rounded-3xl bg-white px-7">
             <h3 className="font-semibold text-xl mb-7">
@@ -253,8 +130,8 @@ export default function PaymentPage() {
                 <input
                   type="radio"
                   className="w-5 h-5 accent-blue-600 rounded-full"
-                  value={"cash"}
-                  checked={paymentMethod === "cash"}
+                  value={"cod"}
+                  checked={paymentMethod === "cod"}
                   onChange={handlePaymentMethodChange}
                 />
                 <img src={money} alt="" className="w-8" />

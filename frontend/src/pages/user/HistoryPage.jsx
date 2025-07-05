@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import Pagination from "../../components/Pagination";
+import { useEffect, useState } from "react";
 import HistotyItem from "../../components/HistotyItem";
+import Pagination from "../../components/Pagination";
 import { useAuth } from "../../components/common/AuthContext";
-import { getHistotyData } from "../../services/userServices/Service";
-import { Link } from "react-router-dom";
+import { getOrderByUserId } from "../../services/userServices/orderService";
 
 export default function HistoryPage() {
   const LIMIT = 5;
@@ -12,12 +11,11 @@ export default function HistoryPage() {
   const [page, setPage] = useState(1);
   const { user } = useAuth();
   useEffect(() => {
-    getHistotyData(user.token,page-1,LIMIT).then((res) => {
-      console.log(res)
-      setCount(res.totalItems||0);
-      setHistory(res.orders);
+    getOrderByUserId(user.id, page, LIMIT).then((res) => {
+      setCount(res.count || 0);
+      setHistory(res.order);
     });
-  }, [user,page]);
+  }, [user, page]);
   return (
     <div className="w-[60vw] mx-auto">
       <p className="dancing-script-700 text-7xl ">History</p>
@@ -29,7 +27,12 @@ export default function HistoryPage() {
           ))}
         </div>
       )}
-      <Pagination count={count} current={page} limit={LIMIT} onPageChange={setPage}/>
+      <Pagination
+        count={count}
+        current={page}
+        limit={LIMIT}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

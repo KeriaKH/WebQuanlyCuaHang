@@ -1,19 +1,22 @@
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
-import { addCartItem, updateCartItem } from "../services/userServices/dishService";
+import {
+  addCartItem,
+  updateCartItem,
+} from "../services/userServices/dishService";
 import { formatCurrencyVN } from "../utils/Format";
 import { useAuth } from "./common/AuthContext";
 
 export default function ProductPopUp({
   cartItem,
   handleClose,
-  isEdit=false,
+  isEdit = false,
   reloadCart,
   Quantity,
   Note,
   options,
-  CartItemId
+  CartItemId,
 }) {
   const productRef = useRef(null);
   const { user } = useAuth();
@@ -40,7 +43,7 @@ export default function ProductPopUp({
     );
   };
 
-  const hanndleOptionsChange = (optIndex, choiceName, optionName,price) => {
+  const hanndleOptionsChange = (optIndex, choiceName, optionName, price) => {
     setSelectedOptions((prev) => {
       const newOptions = [...prev];
       const existingOptionIndex = newOptions.findIndex(
@@ -51,13 +54,13 @@ export default function ProductPopUp({
         newOptions[existingOptionIndex] = {
           optionName,
           choiceName,
-          price
+          price,
         };
       } else {
         newOptions.push({
           optionName,
           choiceName,
-          price
+          price,
         });
       }
       setData({ ...data, selectedOptions: newOptions });
@@ -66,15 +69,18 @@ export default function ProductPopUp({
   };
 
   const handleSave = async () => {
-    if(isEdit)
-    {
-      await updateCartItem(user.id, {...data, _id: CartItemId});
+    if (cartItem.option.length !== selectedOptions.length) {
+      setShowError(true);
+      return;
+    }
+    if (isEdit) {
+      await updateCartItem(user.id, { ...data, _id: CartItemId });
       reloadCart();
-      handleClose(false)
+      handleClose(false);
       return;
     }
     await addCartItem(user.id, data);
-    handleClose(false)
+    handleClose(false);
   };
 
   useEffect(() => {
@@ -122,7 +128,12 @@ export default function ProductPopUp({
                         value={item1.name}
                         checked={isChoiceSelected(index, item1.name)}
                         onChange={() =>
-                          hanndleOptionsChange(index, item1.name, item.optionName,item1.price)
+                          hanndleOptionsChange(
+                            index,
+                            item1.name,
+                            item.optionName,
+                            item1.price
+                          )
                         }
                       />
                       <p>{item1.name}</p>

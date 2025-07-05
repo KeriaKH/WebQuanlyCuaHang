@@ -40,7 +40,7 @@ export default function CartPage() {
   const handlePayment = () => {
     navigate("/payment", {
       state: {
-        cart: {},
+        cart: cart,
         subtotal: subtotal,
         discount: selectedVoucher,
       },
@@ -49,6 +49,7 @@ export default function CartPage() {
 
   useEffect(() => {
     getCart(user.id).then((res) => {
+      console.log(res.cart)
       setCart(res.cart);
       setSubtotal(res.subtotal);
     });

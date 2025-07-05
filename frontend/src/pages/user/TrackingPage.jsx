@@ -3,44 +3,31 @@ import {
   faBowlFood,
   faClipboardCheck,
   faHome,
+  faLocationDot,
   faMotorcycle,
+  faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import OrderItem from "../../components/hostRes/OrderItem";
 import money from "../../assets/money.png";
 import zalo from "../../assets/zalopay.png";
-import { formatCurrencyVN } from "../../utils/Format";
+import OrderItem from "../../components/hostRes/OrderItem";
+import { formatAddress, formatCurrencyVN } from "../../utils/Format";
 
 export default function TrackingPage() {
   const [stage, setStage] = useState("pending");
   const navigate = useNavigate();
   const location = useLocation();
   const cart = location.state?.cart || [];
-  const address = location.state?.addressDetail || {};
+  const order = location.state?.tmp || {};
   const subtotal = location.state?.subtotal || 0;
   const discount = location.state?.discount || 0;
-  const orderStage = useMemo(
-    () => ["pending", "cooking", "delivering", "completed"],
-    []
-  );
+  const orderStage = ["pending", "cooking", "delivering", "completed"];
 
   const isActive = (current) => {
     return orderStage.indexOf(stage) >= orderStage.indexOf(current);
   };
-
-  useEffect(() => {
-    const currentIndex = orderStage.indexOf(stage);
-    if (currentIndex < orderStage.length - 1) {
-      const timer = setTimeout(() => {
-        setStage(orderStage[currentIndex + 1]);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-    if(currentIndex===3)
-      navigate('/history')
-  }, [stage, orderStage, navigate]);
 
   return (
     <div className="w-[70%] mx-auto">
@@ -118,30 +105,24 @@ export default function TrackingPage() {
               <FontAwesomeIcon icon={faHome} />
             </div>
           </div>
-          <div className="mt-10 space-y-1 mr-10">
-            <div className="flex items-center space-x-2">
-              <div className="size-4 bg-red-600 rounded-full"></div>
-              <span className="font-semibold">Từ</span>
-            </div>
-            <p className="font-semibold">Cơm Gà Số 23</p>
-            <p className="text-sm">64 số 23, P.A, Quận 7, TP.HCM</p>
-          </div>
           <div className="mt-5 space-y-2 mr-10">
             <div className="flex items-center space-x-2 ">
               <div className="size-4 bg-green-500 rounded-full"></div>
-              <span className="font-semibold">Đến</span>
+              <span className="font-semibold">Giao đến</span>
             </div>
-            <p className="font-semibold">
-              ({address.note}) {address.address}
+            <p className="font-semibold">{order.address.title}</p>
+            <p className="flex items-center space-x-1">
+              <FontAwesomeIcon icon={faPhone} />
+              <span>{order.address.phone}</span>
             </p>
-            <p className="text-sm">
-              {address.name} - {address.phone}
+            <p className="flex items-center space-x-1">
+              <FontAwesomeIcon icon={faLocationDot} />
+              <span>{formatAddress(order.address)}</span>
             </p>
-            <p className="text-sm">{address.email}</p>
             <div className="text-sm flex items-center">
               Thanh toán:
               <img
-                src={address.method === "cash" ? money : zalo}
+                src={order.paymentMethod === "cod" ? money : zalo}
                 className="size-10 ml-2"
               />
             </div>
@@ -160,7 +141,7 @@ export default function TrackingPage() {
               <p>Tạm tính</p>
               <p>{formatCurrencyVN(subtotal)}</p>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-red-500">
               <p>Giảm giá</p>
               <p>- {formatCurrencyVN(discount.value)}</p>
             </div>
@@ -168,7 +149,7 @@ export default function TrackingPage() {
               <p>Phí vận chuyển</p>
               <p>{formatCurrencyVN(30000)}</p>
             </div>
-            <p className="text-end mt-7 text-2xl font-semibold">
+            <p className="text-end mt-7 text-2xl font-semibold text-green-600">
               {formatCurrencyVN(subtotal - (discount.value || 0) + 30000)}
             </p>
           </div>

@@ -46,8 +46,7 @@ const addCartItem = async (req, res) => {
     if (existingItem) {
       const checkOptions = existingItem.selectedOptions.every(
         (option, index) =>
-          option.choiceName ===
-          cartItem.selectedOptions[index].choiceName
+          option.choiceName === cartItem.selectedOptions[index].choiceName
       );
       if (checkOptions) {
         existingItem.quantity += cartItem.quantity;
@@ -138,4 +137,92 @@ const deleteCart = async (req, res) => {
   }
 };
 
-module.exports = { signUp, addCartItem, getCart, updateCartItem, deleteCart };
+const addAddress = async (req, res) => {
+  const { id } = req.params;
+  const { address } = req.body;
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "không tìm thấy user" });
+    if (address.default) {
+      user.address.forEach((item) => {
+        if (item.default) item.default = false;
+      });
+    }
+    user.address.push(address);
+    await user.save();
+    const newAddress = user.address[user.address.length - 1];
+    return res.status(200).json( newAddress );
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getAddrress = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id).select("address -_id");
+    if (!user) return res.status(404).json({ message: "không tìm thấy user" });
+    return res.status(200).json({ address: user.address });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  const { id, addressId } = req.params;
+  try {
+    const user = await User.findById(id).select("address ");
+    if (!user) return res.status(404).json({ message: "không tìm thấy user" });
+    const initialLength = user.address.length;
+    user.address = user.address.filter(
+      (item) => item._id.toString() !== addressId.toString()
+    );
+    if (user.address.length === initialLength) {
+      return res.status(404).json({ message: "không tìm thấy địa chỉ" });
+    }
+    await user.save();
+    return res.status(200).json({ message: "xóa địa chỉ thành công" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateAddress = async (req, res) => {
+  const { id } = req.params;
+  const { address } = req.body;
+  try {
+    const user = await User.findById(id).select("address");
+    if (!user) return res.status(404).json({ message: "không tìm thấy user" });
+    user.address = user.address.map((item) =>
+      item._id.toString() === address._id.toString() ? address : item
+    );
+    console.log(address);
+    if (address.default) {
+      user.address.forEach((item) => {
+        if (item.default && item._id.toString() !== address._id.toString())
+          item.default = false;
+      });
+    }
+    console.log(user.address);
+    await user.save();
+    return res.status(200).json({ address });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  signUp,
+  addCartItem,
+  getCart,
+  updateCartItem,
+  deleteCart,
+  addAddress,
+  deleteAddress,
+  updateAddress,
+  getAddrress,
+};

@@ -26,7 +26,6 @@ export default function HomePage() {
       }
     );
     getCategories().then((res) => {
-      console.log(res);
       setcategories(res.categories);
     });
   }, [page, category, search, priceSort]);
