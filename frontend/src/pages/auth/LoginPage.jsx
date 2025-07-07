@@ -18,12 +18,9 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     const res = await Login(account.email, account.password);
-    console.log(res)
+    console.log(res);
     if (res.token) {
-      
-      if (res.role === "admin")
-        window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${res.token}`;
-      else if (res.role === "restaurantHost") nav("hostres");
+      if (res.role === "admin") nav("/Dashboard");
       else nav("/");
     } else alert("đăng nhập thất bại");
   };

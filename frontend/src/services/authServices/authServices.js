@@ -8,6 +8,7 @@ export const login = async (email, password) => {
         id: response.data.User._id,
         token: response.data.token,
         email: email,
+        role: response.data.User.role,
         expiresAt: new Date().getTime() + 24 * 60 * 60 * 1000,
       };
       localStorage.setItem(
@@ -18,6 +19,7 @@ export const login = async (email, password) => {
         id: response.data.User._id,
         token: response.data.token,
         email: email,
+        role: response.data.User.role,
       };
     }
 
@@ -31,39 +33,20 @@ export const login = async (email, password) => {
   }
 };
 
-export const signUp=async (data)=>{
+export const signUp = async (data) => {
   try {
-    const res=await api.post(`/api/user/signUp`,data)
-    if(res.data)
-      return res.data
-    else
-      return {}
+    const res = await api.post(`/api/user/signUp`, data);
+    if (res.data) return res.data;
+    else return {};
   } catch (error) {
-    if(error.response.status===400)
-      alert(error.response.data.message)
+    if (error.response.status === 400) alert(error.response.data.message);
   }
-}
+};
 
 export const logout = () => {
   localStorage.removeItem(import.meta.env.VITE_LOCAL_STORAGE_KEY);
   if (api.defaults && api.defaults.headers.common["Authorization"]) {
     delete api.defaults.headers.common["Authorization"];
-  }
-};
-
-export const getUserResId = async (id, token) => {
-  try {
-    const res =await api.get(`/api/users/profile/id/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if(res.data.restaurantInfo)
-        return res.data.restaurantInfo.id
-    else
-        return ""
-  } catch (error) {
-    console.log(error)
   }
 };
 

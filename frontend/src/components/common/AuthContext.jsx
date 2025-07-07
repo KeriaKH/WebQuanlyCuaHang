@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   getUserData,
-  getUserResId,
   getUserRole,
   IsLogin,
   login,
@@ -22,9 +21,6 @@ export const AuthProvider = ({ children }) => {
       setIsLogin(true);
       setUser(getUserData());
       setRole(getUserRole());
-      getUserResId(res.userId, res.token).then((id) => {
-        setResId(id || "");
-      });
     }
     return res;
   };
@@ -43,12 +39,6 @@ export const AuthProvider = ({ children }) => {
       const userData = getUserData();
       setUser(userData);
       setRole(getUserRole());
-
-      if (userData.userId && userData.token)
-        getUserResId(userData.userId, userData.token).then((res) =>
-          setResId(res)
-        );
-      else setResId("");
     }
   }, []);
 

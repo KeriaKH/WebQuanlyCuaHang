@@ -30,7 +30,7 @@ export default function Header({ search, setSearch }) {
         >
           Trang chủ
         </Link>
-        {role === "restaurantHost" && (
+        {role === "admin" && (
           <Link
             to={"/Dashboard"}
             className="text-2xl font-extralight hover:font-normal transition"

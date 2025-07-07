@@ -31,7 +31,7 @@ export default function Footer() {
                 <FontAwesomeIcon icon={faEnvelope} />
             </div>
             <img src={logo} alt="" className='h-15'/>
-            <h2>&copy; MADE BY NHÓM 7</h2>
+            <h2>&copy; MADE BY THẾ VINH</h2>
         </div>
     </footer>
   )

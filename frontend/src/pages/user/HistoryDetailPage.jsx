@@ -6,16 +6,15 @@ import {
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import OrderItem from "../../components/hostRes/OrderItem";
+import { getOrderById } from "../../services/userServices/orderService";
 import {
   formatAddress,
   formatCurrencyVN,
   formatDateVN1,
 } from "../../utils/Format";
-import { useState } from "react";
-import { useEffect } from "react";
-import { getOrderById } from "../../services/userServices/orderService";
 
 export default function HistoryDetailPage() {
   const nav = useNavigate();

@@ -1,7 +1,6 @@
 import {
   faCalendarDay,
   faCircleUser,
-  faPhone,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,11 +8,12 @@ import { useEffect, useState } from "react";
 import ChangePasswordPopUp from "../../components/ChangePasswordPopUp";
 import { useAuth } from "../../components/common/AuthContext";
 import CustomSelect from "../../components/CustomSelect";
-import { uploadImage } from "../../services/hosResServices/Product";
+import { uploadImage } from "../../services/cloudinary";
 import {
-  getUserProfile,
-  updatedUser,
-} from "../../services/userServices/Service";
+  getUserbyId,
+  updateUser,
+} from "../../services/userServices/profileService";
+import { formatDateVN2 } from "../../utils/Format";
 
 export default function ProfilePage() {
   const [showPopUp, setShowPopup] = useState(false);
@@ -51,27 +51,32 @@ export default function ProfilePage() {
   };
 
   const handleUpdated = async () => {
-    const { avatar, ...fieldsToCheck } = userDetail;
-    const isFilled = Object.values(fieldsToCheck).every(
+    const isFilled = Object.values(userDetail).every(
       (value) => value && value.trim() !== ""
     );
     if (!isFilled) {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    let tmp = userDetail;
+    let tmp = {
+      name: userDetail.name,
+      dob: userDetail.dob,
+      gender: userDetail.gender,
+      avatar: userDetail.avatar,
+    };
     if (fileSelected) {
       setIsUpLoading(true);
-      await uploadImage(fileSelected, user.token).then((res) => {
+      await uploadImage(fileSelected).then((res) => {
+        console.log(res)
         tmp = {
           ...userDetail,
-          avatar: res.data.url,
+          avatar: res.imageUrl,
         };
         setUserDetail(tmp);
       });
     }
-    console.log(tmp)
-    await updatedUser(user.userId, tmp, user.token);
+    console.log(tmp);
+    await updateUser(user.id, tmp);
     setFileSelected(null);
     setPreviewImage(null);
     setIsUpLoading(false);
@@ -79,9 +84,9 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    getUserProfile(user.userId, user.token).then((res) => {
+    getUserbyId(user.id).then((res) => {
       console.log(res);
-      setUserDetail(res.profile);
+      setUserDetail(res);
     });
   }, [user]);
   return (
@@ -92,16 +97,16 @@ export default function ProfilePage() {
         <div className=" w-[60%] space-y-10 border p-8 rounded-2xl bg-white">
           <div className="flex justify-between">
             <div className="text-xl w-[70%] text-gray-400 space-y-2">
-              <p className="font-semibold">Họ</p>
+              <p className="font-semibold">Tên đầy đủ</p>
               <div className="border-b space-x-2">
                 <FontAwesomeIcon icon={faCircleUser} />
                 <input
                   type="text"
-                  placeholder="firstName"
+                  placeholder="Full name"
                   className="w-[90%] focus:outline-none"
-                  defaultValue={userDetail.firstName}
+                  defaultValue={userDetail.name}
                   onChange={(e) =>
-                    setUserDetail({ ...userDetail, firstName: e.target.value })
+                    setUserDetail({ ...userDetail, name: e.target.value })
                   }
                 />
               </div>
@@ -112,8 +117,8 @@ export default function ProfilePage() {
                 <div className="text-black">
                   <CustomSelect
                     options={[
-                      { name: "Nam", value: "male" },
-                      { name: "Nữ", value: "female" },
+                      { name: "Nam", value: "nam" },
+                      { name: "Nữ", value: "nữ" },
                     ]}
                     handleChange={(value) =>
                       setUserDetail({ ...userDetail, gender: value })
@@ -125,45 +130,15 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="text-xl text-gray-400 space-y-2">
-              <p className="font-semibold">Tên</p>
-              <div className="border-b space-x-2">
-                <FontAwesomeIcon icon={faCircleUser} />
-                <input
-                  type="text"
-                  placeholder="lastName"
-                  className="w-[90%] focus:outline-none"
-                  defaultValue={userDetail.lastName}
-                  onChange={(e) =>
-                    setUserDetail({ ...userDetail, lastName: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-          <div className="text-xl text-gray-400 space-y-2">
             <p className="font-semibold">Ngày sinh</p>
             <div className="border-b space-x-2">
               <FontAwesomeIcon icon={faCalendarDay} />
               <input
                 type="date"
                 className="w-[90%] focus:outline-none"
-                defaultValue={userDetail.dateOfBirth}
+                defaultValue={formatDateVN2(userDetail.dob)}
                 onChange={(e) =>
-                  setUserDetail({ ...userDetail, dateOfBirth: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <div className="text-xl text-gray-400 space-y-2">
-            <p className="font-semibold">Số điện thoại</p>
-            <div className="border-b flex space-x-2">
-              <FontAwesomeIcon icon={faPhone} />
-              <input
-                type="tel"
-                placeholder="Username"
-                className="w-[90%] focus:outline-none"
-                defaultValue={userDetail.phone}
-                onChange={(e) =>
-                  setUserDetail({ ...userDetail, phone: e.target.value })
+                  setUserDetail({ ...userDetail, dob: e.target.value })
                 }
               />
             </div>

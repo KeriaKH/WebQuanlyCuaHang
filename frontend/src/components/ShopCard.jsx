@@ -2,8 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatCurrencyVN } from "../utils/Format";
 import ProductPopUp from "./ProductPopUp";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
-export default function ShopCard({ dishDetail}) {
+export default function ShopCard({ dishDetail }) {
+  console.log(dishDetail);
   const [showProductPopUp, setShowProductPopUp] = useState(false);
   const navigate = useNavigate();
 
@@ -33,21 +36,41 @@ export default function ShopCard({ dishDetail}) {
             >
               {dishDetail.name}
             </h3>
-            <div className="flex space-x-2 text-yellow-500">
-              <p>{dishDetail.review}</p>
-              <p> {dishDetail.star} ★ </p>
-            </div>
           </div>
           <p className="text-gray-500 text-sm">{dishDetail.description}</p>
-          <p className="text-xl py-2 font-bold text-end">
-            {formatCurrencyVN(dishDetail.price)}
-          </p>
-          <button className="bg-[rgba(60,152,80,1)] hover:bg-green-800 transition border text-white p-2 text-lg font-semibold rounded-2xl w-full" onClick={()=>setShowProductPopUp(true)}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <FontAwesomeIcon
+                    icon={faStar}
+                    key={star}
+                    className={`w-4 h-4 ${
+                      star <= 4 ? "text-yellow-400" : "text-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="ml-2 text-sm font-medium text-gray-700">
+                {dishDetail.star}
+              </span>
+              <span className="ml-1 text-sm text-gray-500">({dishDetail.reviewCount} đánh giá)</span>
+            </div>
+            <p className="text-xl py-2 font-bold text-end">
+              {formatCurrencyVN(dishDetail.price)}
+            </p>
+          </div>
+          <button
+            className="bg-[rgba(60,152,80,1)] hover:bg-green-800 transition border text-white p-2 text-lg font-semibold rounded-2xl w-full"
+            onClick={() => setShowProductPopUp(true)}
+          >
             Đặt món
           </button>
         </div>
       </div>
-      {showProductPopUp && <ProductPopUp handleClose={setShowProductPopUp} cartItem={dishDetail} />}
+      {showProductPopUp && (
+        <ProductPopUp handleClose={setShowProductPopUp} cartItem={dishDetail} />
+      )}
     </>
   );
 }

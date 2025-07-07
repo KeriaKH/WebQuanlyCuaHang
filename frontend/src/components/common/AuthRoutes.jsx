@@ -6,10 +6,8 @@ export function RequireAuth({ children }) {
   const { isLogin } = useAuth();
 
   if (!isLogin) {
-    // Lưu lại URL hiện tại để sau khi đăng nhập có thể quay lại
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
   return children ? children : <Outlet />;
 }
 
@@ -22,7 +20,7 @@ export function RequireRestaurantHost({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (role !== "restaurantHost") {
+  if (role !== "admin") {
     return <Navigate to="/unAuth" replace />;
   }
 

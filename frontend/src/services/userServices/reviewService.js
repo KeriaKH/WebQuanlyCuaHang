@@ -12,3 +12,14 @@ export const getReviews = async (id, page, limit, star) => {
     return {};
   }
 };
+
+export const addReview = async (reviewData) => {
+  try {
+    const res = await api.post(`/api/review/add`,reviewData);
+    if (res.data) return res.data;
+    return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};

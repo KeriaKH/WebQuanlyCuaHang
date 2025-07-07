@@ -11,25 +11,34 @@ const signUp = async (req, res) => {
       .json({ id: user._id, name: user.name, email: user.email });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
 const getUserbyId = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
-    if (user)
-      return res.status(200).json({
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
+    const user = await User.findById(id).select(
+      "-password -cart -address -__v"
+    );
+    if (user) return res.status(200).json(user);
     return res.status(404).json({ message: "không tìm thấy user" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const userData = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(id, userData);
+    if (!user) return res.status(404).json({ message: "không tìm thấy user" });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -41,8 +50,6 @@ const addCartItem = async (req, res) => {
     const existingItem = user.cart.find(
       (item) => item.dishId.toString() === cartItem.dishId.toString()
     );
-    console.log(cartItem);
-    console.log(existingItem);
     if (existingItem) {
       const checkOptions = existingItem.selectedOptions.every(
         (option, index) =>
@@ -151,7 +158,7 @@ const addAddress = async (req, res) => {
     user.address.push(address);
     await user.save();
     const newAddress = user.address[user.address.length - 1];
-    return res.status(200).json( newAddress );
+    return res.status(200).json(newAddress);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
@@ -225,4 +232,6 @@ module.exports = {
   deleteAddress,
   updateAddress,
   getAddrress,
+  getUserbyId,
+  updateUser
 };

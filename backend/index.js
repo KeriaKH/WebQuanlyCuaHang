@@ -9,6 +9,7 @@ const categoryRoute=require('./routes/category')
 const reviewRoute=require('./routes/review')
 const voucherRoute=require('./routes/voucher')
 const orderRoute=require('./routes/order')
+const cloudinaryRoute=require('./routes/cloudinary')
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/api/category',categoryRoute)
 app.use('/api/review',reviewRoute)
 app.use('/api/voucher',voucherRoute)
 app.use('/api/order',orderRoute)
+app.use('/api/cloudinary',cloudinaryRoute)
 
 const Port = process.env.PORT || 3000;
 

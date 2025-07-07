@@ -1,22 +1,22 @@
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import ReviewPopUp from "./ReviewPopUp";
+import ReviewRes from "./ReviewRes";
 
-export default function ReviewBox({reviews,id}) {
-  const totalReviews = reviews.data?.length||0
-  const rating = reviews.star
-  const starCount = reviews.starCount || {};  
-  const ratingBars = [1,2,3,4,5].map((item)=>({
-    stars:item,
-    percent: ((starCount[item] || 0) / totalReviews) * 100 || 0
-  }))
-  const [showPopup, setShowPopup] = useState(false);
+export default function ReviewBox({ reviews,dish,reload }) {
+  const totalReviews = reviews.data?.length || 0;
+  const rating = reviews.star;
+  const starCount = reviews.starCount || {};
+  const ratingBars = [5, 4, 3, 2, 1].map((item) => ({
+    stars: item,
+    percent: ((starCount[item] || 0) / totalReviews) * 100 || 0,
+  }));
+  const [showPopUp, setShowPopup] = useState(false);
 
   return (
     <div className="border rounded-t-2xl text-center bg-white h-fit">
       <div className="bg-white py-2 border-b rounded-t-2xl">
-        <h2 className="font-semibold text-lg">Review</h2>
+        <h2 className="font-semibold text-lg">Tổng quan đánh giá</h2>
       </div>
       <div className="bg-white p-5">
         <div className="flex items-center justify-between text-sm mb-2 px-6 py-2 bg-[rgba(217,217,217,0.4)] rounded-t-2xl">
@@ -41,22 +41,10 @@ export default function ReviewBox({reviews,id}) {
           ))}
         </div>
       </div>
-
-      <div
-        className="py-2 border-t text-sm text-gray-700 hover:bg-black/20 transition-colors duration-200"
-        onClick={() => setShowPopup(true)}
-      >
-        Chạm để xem thêm
-      </div>
-      {showPopup && (
-        <ReviewPopUp
-          ratingBars={ratingBars}
-          rating={rating}
-          totalReviews={totalReviews}
-          handleClose={setShowPopup}
-          idRes={id}
-        />
-      )}
+      <button className="bg-green-500 text-white w-[80%] p-2 font-semibold mb-4 rounded-2xl hover:bg-green-600 transition" onClick={()=>setShowPopup(true)}>
+        Viết đánh giá
+      </button>
+      {showPopUp && <ReviewRes resDetail={dish} dishStar={rating} handleClose={setShowPopup} reload={reload}/>}
     </div>
   );
 }

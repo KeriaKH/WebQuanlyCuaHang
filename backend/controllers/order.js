@@ -44,7 +44,7 @@ const getOrderByUserId = async (req, res) => {
       }, 0);
 
       return {
-        ...order.toObject(), // chuyển từ mongoose document thành plain object để thêm field mới
+        ...order.toObject(),
         summary,
       };
     });
@@ -85,4 +85,78 @@ const getOrderByid = async (req, res) => {
   }
 };
 
-module.exports = { checkout, getOrderByUserId, getOrderByid };
+const getDashboarData = async (req, res) => {
+  try {
+    const order = await Order.find({ order_status: "delivered" });
+    console.log(order);
+
+    const totalOrder = order.length;
+    const deliveryOrder = await Order.countDocuments({
+      order_status: "shipped",
+    });
+    const now = new Date();
+
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1
+    );
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const todayOrder = await Order.countDocuments({
+      createdAt: { $gte: startOfToday, $lt: endOfToday },
+    });
+
+    const monthOrderData = await Order.find({
+      order_status: "delivered",
+      createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    const monthOrder = monthOrderData.length;
+
+    const totalRevenue = order.reduce((sum, orderDoc) => {
+      const itemTotal = orderDoc.orderItem.reduce((orderSum, item) => {
+        const optionTotal =
+          item.selectedOptions?.reduce(
+            (optSum, opt) => optSum + opt.price,
+            0
+          ) || 0;
+        return orderSum + (item.price + optionTotal) * item.quantity;
+      }, 0);
+      return sum + itemTotal;
+    }, 0);
+
+    const monthRevenue = monthOrderData.reduce((sum, orderDoc) => {
+      const itemTotal = orderDoc.orderItem.reduce((orderSum, item) => {
+        const optionTotal =
+          item.selectedOptions?.reduce(
+            (optSum, opt) => optSum + opt.price,
+            0
+          ) || 0;
+        return orderSum + (item.price + optionTotal) * item.quantity;
+      }, 0);
+      return sum + itemTotal;
+    }, 0);
+
+    return res.status(200).json({
+      totalOrder,
+      todayOrder,
+      deliveryOrder,
+      monthOrder,
+      totalRevenue,
+      monthRevenue,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { checkout, getOrderByUserId, getOrderByid, getDashboarData };

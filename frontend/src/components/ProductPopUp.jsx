@@ -49,7 +49,6 @@ export default function ProductPopUp({
       const existingOptionIndex = newOptions.findIndex(
         (_, index) => index === optIndex
       );
-      console.log(existingOptionIndex);
       if (existingOptionIndex !== -1) {
         newOptions[existingOptionIndex] = {
           optionName,
@@ -116,7 +115,7 @@ export default function ProductPopUp({
               Lựa chọn đủ các option
             </div>
           )}
-          <div className="mb-4 ">
+          <div className="mb-4">
             {cartItem?.option?.map((item, index) => (
               <div key={index}>
                 <p className="font-semibold mb-2">{item.optionName}</p>

@@ -1,6 +1,7 @@
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "./Pagination";
+import { formatDateVN } from "../utils/Format";
 
 export default function ReviewPopUp({
   limit,
@@ -12,11 +13,25 @@ export default function ReviewPopUp({
   onStarChange,
 }) {
   return (
-    <div className="bg-[rgba(192,192,192,1)] h-full rounded-2xl shadow-xl">
-      <div className="flex justify-center space-x-5 p-5">
+    <div className="bg-gray-50 h-full rounded-2xl shadow-xl">
+      <div className="flex justify-end space-x-5 p-5">
+        <div
+          className={`${
+            selectedStar === "tất cả"
+              ? "bg-green-500 border-green-500 text-white -translate-y-1"
+              : " border-gray-200 bg-white"
+          } border p-2 text-xl hover:bg-green-500 hover:border-green-500 rounded-xl hover:text-white hover:-translate-y-1 duration-300 transition cursor-pointer`}
+          onClick={() => onStarChange("tất cả")}
+        >
+          Tất cả
+        </div>
         {Array.from({ length: 5 }).map((_, index) => (
           <div
-            className={`${selectedStar===index+1?"border-red-500 text-red-500":" border-gray-200"} border p-2 bg-white text-xl hover:border-red-500 rounded hover:text-red-500 transition cursor-pointer`}
+            className={`${
+              selectedStar === index + 1
+                ? "bg-green-500 text-white border-green-500 -translate-y-1"
+                : " border-gray-200 bg-white"
+            } border p-2 text-xl hover:bg-green-500 hover:border-green-500 rounded-xl hover:text-white hover:-translate-y-1 duration-300 transition cursor-pointer`}
             key={index}
             onClick={() => onStarChange(index + 1)}
           >
@@ -24,13 +39,12 @@ export default function ReviewPopUp({
           </div>
         ))}
       </div>
-      <hr />
       <div className="p-5 space-y-5 ">
         {reviews && reviews.length > 0 ? (
           reviews.map((review, index) => (
             <div
               key={index}
-              className="text-start bg-white p-5 border rounded-2xl space-y-2"
+              className="text-start bg-white p-5 shadow-xl rounded-2xl space-y-2"
             >
               <div className="space-x-3 flex items-center">
                 <img
@@ -38,7 +52,7 @@ export default function ReviewPopUp({
                   alt={review.userId.name}
                   className="rounded-full size-10 object-cover shadow"
                 />
-                <span>{review.userId.name}</span>
+                <span className="font-medium">{review.userId.name}</span>
               </div>
               <div>
                 {Array.from({ length: 5 }).map((_, index) => (
@@ -51,7 +65,7 @@ export default function ReviewPopUp({
                   />
                 ))}
                 <span className="ml-3 text-black/50 text-sm">
-                  {review.createdAt}
+                  {formatDateVN(review.createdAt)}
                 </span>
               </div>
               <p>{review.comment}</p>

@@ -1,4 +1,3 @@
-const review = require("../models/review");
 const Review = require("../models/review");
 
 const getReview = async (req, res) => {
@@ -6,7 +5,7 @@ const getReview = async (req, res) => {
   const { page = 1, limit = 5, star } = req.query;
   try {
     const filter = {};
-    if (star>0) filter.star = star;
+    if (star > 0) filter.star = star;
     filter.dishId = id;
     const skip = (page - 1) * limit;
 
@@ -34,4 +33,16 @@ const getReview = async (req, res) => {
   }
 };
 
-module.exports = { getReview };
+const addReview = async (req, res) => {
+  const reviewData = req.body;
+  try {
+    const review = await Review.create(reviewData);
+    if (!review) return res.status(404).json({ message: "thất bại" });
+    return res.status(200).json(review);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getReview,addReview };

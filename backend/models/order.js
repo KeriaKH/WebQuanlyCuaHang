@@ -21,13 +21,16 @@ const orderItemSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    selectedOptions: [
-      {
-        optionName: { type: String, required: true },
-        choiceName: { type: String, required: true },
-        price: { type: Number, required: true },
-      },
-    ],
+    selectedOptions: {
+      type: [
+        {
+          optionName: { type: String, required: true },
+          choiceName: { type: String, required: true },
+          price: { type: Number, required: true },
+        },
+      ],
+      default: [],
+    },
   },
   { _id: false }
 );

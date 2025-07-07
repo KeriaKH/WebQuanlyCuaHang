@@ -1,10 +1,15 @@
 import { faStar, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
-import { addReview } from "../services/userServices/Service";
 import { useAuth } from "./common/AuthContext";
+import { addReview } from "../services/userServices/reviewService";
 
-export default function ReviewRes({ handleClose, resDetail }) {
+export default function ReviewRes({
+  handleClose,
+  resDetail,
+  dishStar,
+  reload,
+}) {
   const [hoveredStar, setHoveredStar] = useState(null);
   const [star, setStar] = useState(0);
   const [review, setReview] = useState("");
@@ -14,19 +19,21 @@ export default function ReviewRes({ handleClose, resDetail }) {
     handleClose(false);
   };
 
-  const handleReview = () => {
+  const handleReview = async() => {
     const reviewData = {
-      userComment: review,
-      rating: star,
-      images: [],
+      comment: review,
+      star: star,
+      userId: user.id,
+      dishId: resDetail._id,
     };
-    if(reviewData.userComment.trim()===""||reviewData.rating===0)
-    {
-      alert("vui lòng điền bình luận và chọn số sao")
-      return
+    console.log(reviewData);
+    if (reviewData.comment.trim() === "" || reviewData.star === 0) {
+      alert("vui lòng điền bình luận và chọn số sao");
+      return;
     }
-    console.log(reviewData)
-    addReview(resDetail.id, user.token,reviewData);
+    console.log(reviewData);
+    await addReview(reviewData);
+    reload()
     handleClose(false);
   };
 
@@ -50,21 +57,24 @@ export default function ReviewRes({ handleClose, resDetail }) {
           <button onClick={handle}>
             <FontAwesomeIcon icon={faX} className="mr-4" />
           </button>
-          Đánh giá nhà hàng
+          Viết đánh giá
         </div>
         <div className="w-full p-10 ">
           <div className="bg-gray-200 w-full p-5 flex flex-col items-center shadow rounded-2xl">
             <div className="flex flex-col items-center space-y-4 w-full border-b p-2 ">
               <img
-                src={resDetail.restaurantImage}
-                alt={resDetail.restaurantName}
-                className="size-26 rounded-full"
+                src={resDetail?.image}
+                alt={resDetail?.name}
+                className="w-32 h-30 rounded"
               />
               <div className="flex space-x-4 items-center text-xl">
-                <p className=" font-semibold">{resDetail.restaurantName}</p>
+                <p className=" font-semibold">{resDetail?.name}</p>
                 <p>
-                  4.8{" "}
-                  <FontAwesomeIcon icon={faStar} className="text-yellow-400" />{" "}
+                  {dishStar + " "}
+                  <FontAwesomeIcon
+                    icon={faStar}
+                    className="text-yellow-400"
+                  />{" "}
                 </p>
               </div>
             </div>
@@ -96,7 +106,10 @@ export default function ReviewRes({ handleClose, resDetail }) {
               onChange={(e) => setReview(e.target.value)}
             />
           </div>
-          <button className="w-full bg-[rgba(227,70,63,1)] mt-5 p-3 text-white font-bold text-2xl rounded-2xl hover:bg-red-700 transition" onClick={handleReview}>
+          <button
+            className="w-full bg-[rgba(227,70,63,1)] mt-5 p-3 text-white font-bold text-2xl rounded-2xl hover:bg-red-700 transition"
+            onClick={handleReview}
+          >
             Gửi
           </button>
         </div>
