@@ -25,7 +25,7 @@ export default function ProductCard({
     <>
       <div
         className={`flex p-3 space-x-5 shadow-xl bg-white transition-all duration-300 ${
-          !productDetail.active
+          !productDetail.available
             ? "opacity-60 cursor-not-allowed"
             : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
         }`}

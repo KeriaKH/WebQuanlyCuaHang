@@ -7,8 +7,12 @@ export default function ProductCard({ item, Loading }) {
     return <div className="w-120 animate-pulse bg-gray-300 h-30"></div>;
   return (
     <div
-      className="flex w-full h-30 items-center shadow rounded caret-transparent bg-white p-3"
-      onClick={() => nav(`/Product/${item.id}`)}
+      className={`flex w-full h-30 items-center shadow rounded caret-transparent bg-white p-3 transition ${
+          !item.available
+            ? "opacity-60"
+            : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
+        }`}
+      onClick={() => nav(`/Product/${item._id}`)}
     >
       <img
         src={item.image}
@@ -20,7 +24,7 @@ export default function ProductCard({ item, Loading }) {
           <p className="font-bold">{item.name}</p>
           <p className="text-sm text-gray-500"> {item.description} </p>
         </div>
-        <p className="font-semibold text-end self-end">{formatCurrencyVN(item.basePrice)}</p>
+        <p className="font-semibold text-end self-end">{formatCurrencyVN(item.price)}</p>
       </div>
     </div>
   );

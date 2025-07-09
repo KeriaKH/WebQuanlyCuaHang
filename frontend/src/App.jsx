@@ -1,34 +1,34 @@
-import { Route, Router, Routes } from "react-router-dom";
-import HomePageLayout from "./layouts/HomePageLayout";
-import HomePage from "./pages/HomePage";
-import ShopPage from "./pages/ShopPage";
-import LoginPage from "./pages/auth/LoginPage";
-import NoBannerLayout from "./layouts/NoBannerLayout";
-import SignUpPage from "./pages/auth/SignUpPage";
-import ForgetPage from "./pages/auth/ForgetPage";
-import CartPage from "./pages/user/CartPage";
-import PaymentPage from "./pages/user/PaymentPage";
-import TrackingPage from "./pages/user/TrackingPage";
-import ProfilePage from "./pages/user/ProfilePage";
-import HistoryPage from "./pages/user/HistoryPage";
-import ChatPage from "./pages/user/ChatPage";
-import RestaurentLayout from "./layouts/RestaurentLayout";
-import Dashboard from "./pages/hostRes/Dashboard";
-import UnAuthorizedPage from "./pages/UnAuthorizePage";
+import { Route, Routes } from "react-router-dom";
 import {
   RequireAnonymous,
   RequireAuth,
   RequireRestaurantHost,
 } from "./components/common/AuthRoutes";
-import OrderPage from "./pages/hostRes/OrderPage";
-import OrderDetailPage from "./pages/hostRes/OrderDetailPage";
-import ProductPage from "./pages/hostRes/ProductPage";
-import ProductDetailPage from "./pages/hostRes/ProductDetailPage";
-import CategoryPage from "./pages/hostRes/CategoryPage";
+import HomePageLayout from "./layouts/HomePageLayout";
+import NoBannerLayout from "./layouts/NoBannerLayout";
+import RestaurentLayout from "./layouts/RestaurentLayout";
+import ForgetPage from "./pages/auth/ForgetPage";
+import LoginPage from "./pages/auth/LoginPage";
+import SignUpPage from "./pages/auth/SignUpPage";
+import HomePage from "./pages/HomePage";
 import AddProduct from "./pages/hostRes/AddProduct";
-import HistoryDetailPage from "./pages/user/HistoryDetailPage";
-import AddressPage from "./pages/user/AddressPage";
+import Dashboard from "./pages/hostRes/Dashboard";
+import OrderDetailPage from "./pages/hostRes/OrderDetailPage";
+import OrderPage from "./pages/hostRes/OrderPage";
+import ProductDetailPage from "./pages/hostRes/ProductDetailPage";
+import ProductPage from "./pages/hostRes/ProductPage";
 import RestaurantProfile from "./pages/hostRes/ResProfile";
+import VoucherPage from "./pages/hostRes/VoucherPage";
+import ShopPage from "./pages/ShopPage";
+import UnAuthorizedPage from "./pages/UnAuthorizePage";
+import AddressPage from "./pages/user/AddressPage";
+import CartPage from "./pages/user/CartPage";
+import ChatPage from "./pages/user/ChatPage";
+import HistoryDetailPage from "./pages/user/HistoryDetailPage";
+import HistoryPage from "./pages/user/HistoryPage";
+import PaymentPage from "./pages/user/PaymentPage";
+import ProfilePage from "./pages/user/ProfilePage";
+import TrackingPage from "./pages/user/TrackingPage";
 
 export default function App() {
   return (
@@ -69,7 +69,7 @@ export default function App() {
           <Route path="Product" element={<ProductPage />} />
           <Route path="Product/add" element={<AddProduct />} />
           <Route path="Product/:id" element={<ProductDetailPage />} />
-          <Route path="Voucher" element={<CategoryPage />} />
+          <Route path="Voucher" element={<VoucherPage />} />
           <Route path="ResProfile" element={<RestaurantProfile />} />
         </Route>
       </Route>

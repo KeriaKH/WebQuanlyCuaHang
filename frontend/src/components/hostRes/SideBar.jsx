@@ -2,8 +2,9 @@ import {
   faBowlRice,
   faChartPie,
   faHouseUser,
+  faTag,
   faTicket,
-  faTruck
+  faTruck,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
@@ -17,15 +18,18 @@ export default function SideBar() {
     { icon: faBowlRice, name: "Product" },
     { icon: faTicket, name: "Voucher" },
     { icon: faHouseUser, name: "ResProfile" },
+    { icon: faTag, name: "Category" },
   ];
-  
+
   const nav = useNavigate();
-  const location=useLocation();
-  const getOptionFromPath=(path)=>{
-    const found=options.find(opt=>path.includes(opt.name))
-    return found?found.name:options[0].name;
-  }
-  const [selectedOption, setSelectedOption] = useState(getOptionFromPath(location.pathname));
+  const location = useLocation();
+  const getOptionFromPath = (path) => {
+    const found = options.find((opt) => path.includes(opt.name));
+    return found ? found.name : options[0].name;
+  };
+  const [selectedOption, setSelectedOption] = useState(
+    getOptionFromPath(location.pathname)
+  );
 
   return (
     <div className="w-[15vw] p-5 flex flex-col h-screen fixed top-0 left-0">

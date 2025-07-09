@@ -7,18 +7,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import MyChart from "../../components/MyChart";
-import OrderCard from "../../components/hostRes/OrderCard";
-import Pagination from "../../components/Pagination";
 import CustomSelect from "../../components/CustomSelect";
-import { useAuth } from "../../components/common/AuthContext";
+import MyChart from "../../components/MyChart";
+import Pagination from "../../components/Pagination";
+import OrderCard from "../../components/hostRes/OrderCard";
 import {
-  getDashboardData,
-  getOrderData,
-} from "../../services/hosResServices/service";
+  getDashboarData,
+  getOrder,
+} from "../../services/userServices/orderService";
 
 export default function OrderPage() {
-  const { user, resId } = useAuth();
   const LIMIT = 12;
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
@@ -26,46 +24,39 @@ export default function OrderPage() {
   const [priceSort, setPriceSort] = useState(0);
   const [dateSort, setDateSort] = useState(0);
   const [orderStatus, setOrderStatus] = useState("all");
+  const [sortBy, setSortBy] = useState();
   const [orders, setOrders] = useState([]);
   const [data, setData] = useState();
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (resId) {
-      getOrderData(resId, user.token).then((res) => {
-        console.log(res);
-        setOrders(res.orders);
-        setCount(res.totalItems || 0);
-      });
-      getDashboardData(resId, user.token).then((res) => {
-        console.log(res);
-        setData(res);
-      });
-    }
+    getOrder(
+      page,
+      LIMIT,
+      search,
+      orderStatus,
+      sortBy,
+      sortBy === "summary" ? priceSort : dateSort
+    ).then((res) => {
+      console.log(res);
+      setOrders(res.order);
+      setCount(res.count || 0);
+    });
+    getDashboarData().then((res) => {
+      console.log(res);
+      setData(res);
+    });
     setTimeout(() => setIsLoading(false), 500);
-  }, [user, resId]);
+  }, [dateSort, priceSort, page, orderStatus, search, sortBy]);
 
-  const getFilteredOrders = () => {
-    let filtered = [...orders];
-    // Lọc theo trạng thái
-    if (orderStatus !== "all" && orderStatus !== "pending") {
-      filtered = filtered.filter((order) => order.status === orderStatus);
-    }
+  const handleSetDateSort = (value) => {
+    setDateSort(value);
+    setSortBy("createdAt");
+  };
 
-    // Sắp xếp theo ngày tạo
-    if (dateSort === -1) {
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Mới nhất
-    } else if (dateSort === 1) {
-      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // Cũ nhất
-    }
-
-    // Sắp xếp theo giá tiền
-    if (priceSort === 1) {
-      filtered.sort((a, b) => a.totalAmount - b.totalAmount); // Tăng dần
-    } else if (priceSort === -1) {
-      filtered.sort((a, b) => b.totalAmount - a.totalAmount); // Giảm dần
-    }
-
-    return filtered;
+  const handleSetPriceSort = (value) => {
+    setPriceSort(value);
+    setSortBy("summary");
   };
 
   return (
@@ -85,22 +76,22 @@ export default function OrderPage() {
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white  ">
               <FontAwesomeIcon icon={faClock} className="mr-2" />
               Số lượng đơn hôm nay
-              <p className="mt-2">{data?.todayOrders}</p>
+              <p className="mt-2">{data?.todayOrder}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white ">
               <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
               Số lượng đơn tháng này
-              <p className="mt-2">{data?.processingOrders}</p>
+              <p className="mt-2">{data?.monthOrder}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl text-white ">
               <FontAwesomeIcon icon={faGlobe} className="mr-2" />
               Tổng đơn hàng
-              <p className="mt-2">{data?.totalOrders}</p>
+              <p className="mt-2">{data?.totalOrder}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl text-white ">
               <FontAwesomeIcon icon={faTruck} className="mr-2" />
               Số lượng đơn đang được giao
-              <p className="mt-2">{data?.processingOrders}</p>
+              <p className="mt-2">{data?.deliveryOrder}</p>
             </div>
           </div>
         </div>
@@ -109,6 +100,8 @@ export default function OrderPage() {
         <div className="w-full bg-white rounded-xl p-1.5 px-3 flex items-center">
           <input
             type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full focus:outline-none"
             placeholder="Tìm kiếm..."
           />
@@ -126,7 +119,7 @@ export default function OrderPage() {
                 { name: "pending", value: "pending" },
                 { name: "cooking", value: "cooking" },
                 { name: "shipping", value: "shipping" },
-                { name: "deliveried", value: "deliveried" },
+                { name: "delivered", value: "delivered" },
               ]}
               handleChange={setOrderStatus}
             />
@@ -139,7 +132,7 @@ export default function OrderPage() {
                 { name: "Mới nhất", value: -1 },
                 { name: "Cũ nhất", value: 1 },
               ]}
-              handleChange={setDateSort}
+              handleChange={handleSetDateSort}
             />
           </div>
           <div className="bg-white flex items-center p-1 space-x-2 rounded">
@@ -150,7 +143,7 @@ export default function OrderPage() {
                 { name: "Tăng dần", value: 1 },
                 { name: "Giảm dần", value: -1 },
               ]}
-              handleChange={setPriceSort}
+              handleChange={handleSetPriceSort}
             />
           </div>
         </div>
@@ -160,9 +153,8 @@ export default function OrderPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <OrderCard key={index} loading={true} />
             ))
-          : getFilteredOrders()
-              .slice((page - 1) * LIMIT, page * LIMIT)
-              .map((item, index) => <OrderCard key={index} item={item} />)}
+          : orders &&
+            orders.map((item, index) => <OrderCard key={index} item={item} />)}
       </div>
       <Pagination
         limit={LIMIT}

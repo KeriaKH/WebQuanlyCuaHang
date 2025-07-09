@@ -10,7 +10,7 @@ export const getDishs = async (
 ) => {
   try {
     const res = await api.get(
-      sortOrder
+      sortBy && sortOrder !== 0
         ? `/api/dish?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&category=${category}`
         : `/api/dish?page=${page}&limit=${limit}&search=${search}&category=${category}`
     );
@@ -25,6 +25,39 @@ export const getDishs = async (
 export const getDishbyId = async (id) => {
   try {
     const res = await api.get(`/api/dish/${id}`);
+    if (res.data) return res.data;
+    return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const updateDish = async (id, dishData) => {
+  try {
+    const res = await api.put(`/api/dish/${id}`, dishData);
+    if (res.data) return res.data;
+    return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const addDish = async (dishData) => {
+  try {
+    const res = await api.post(`/api/dish`, dishData);
+    if (res.data) return res.data;
+    return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const deleteDish = async (id) => {
+  try {
+    const res = await api.delete(`/api/dish/${id}`);
     if (res.data) return res.data;
     return {};
   } catch (error) {

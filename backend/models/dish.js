@@ -6,7 +6,11 @@ const dishSchema = new mongoose.Schema(
     price: { type: Number, require: true },
     image: { type: String, default: "" },
     description: { type: String, require: false },
-    categoryId: { type: mongoose.Schema.Types.ObjectId, require: true },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "category",
+      require: true,
+    },
     available: { type: Boolean, require: true, default: false },
     option: [
       {
@@ -15,6 +19,7 @@ const dishSchema = new mongoose.Schema(
           {
             name: { type: String, required: true },
             price: { type: Number, required: true },
+            _id: false,
           },
         ],
         _id: false,

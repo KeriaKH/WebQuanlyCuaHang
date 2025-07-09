@@ -37,7 +37,7 @@ export default function CustomSelect({ options,selected,handleChange }) {
             `}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>{options[selectedOption].name}</span>
+        <span>{options[selectedOption]?.name}</span>
         <FontAwesomeIcon icon={faAngleDown} className={`transition-transform duration-200 ${isOpen?'rotate-180':''}`}/>
       </button>
 

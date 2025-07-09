@@ -7,24 +7,25 @@ import {
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../components/common/AuthContext";
-import { AddDish, uploadImage } from "../../services/hosResServices/Product";
+import { uploadImage } from "../../services/cloudinary";
+import { getCategories } from "../../services/userServices/categoryService";
+import { addDish } from "../../services/userServices/dishService";
 
 export default function AddProduct() {
   const nav = useNavigate();
   const [fileSelected, setFileSelected] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [isUpLoading, setIsUpLoading] = useState(false);
-  const [dishData, setDishData] = useState({
-    name: "",
-    description: "",
-    basePrice: 0,
-    images: [],
-    options: [],
-  });
-  const { user, resId } = useAuth();
+  const [dishData, setDishData] = useState({});
+  const [categories, setcategories] = useState([]);
+  useEffect(() => {
+    getCategories().then((res) => {
+      console.log(res);
+      setcategories(res.categories);
+    });
+  }, []);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -56,8 +57,9 @@ export default function AddProduct() {
   const isDishDataValid = () => {
     return (
       dishData.name.trim() !== "" &&
-      dishData.basePrice !== "" &&
+      dishData.price !== "" &&
       dishData.description.trim() !== "" &&
+      dishData.categoryId.trim() !== "" &&
       fileSelected
     );
   };
@@ -70,11 +72,12 @@ export default function AddProduct() {
     }
     try {
       setIsUpLoading(true);
-      const image = await uploadImage(fileSelected, user.token);
-      const tmp = { ...dishData, images: [image.data.url] };
-      await AddDish(resId, tmp);
+      const image = await uploadImage(fileSelected);
+      const tmp = { ...dishData, image: image.imageUrl };
+      const res = await addDish(tmp);
       setIsUpLoading(false);
-      alert("Thêm món thành công")
+      alert("Thêm món thành công");
+      nav(`/Product/${res._id}`);
     } catch (error) {
       console.log(error);
     }
@@ -83,8 +86,8 @@ export default function AddProduct() {
   const handleAddOption = () => {
     setDishData({
       ...dishData,
-      options: [
-        ...dishData.options,
+      option: [
+        ...dishData.option,
         { name: "", type: "single", required: true, choices: [] },
       ],
     });
@@ -93,7 +96,7 @@ export default function AddProduct() {
   const handleAddChoice = (index) => {
     setDishData({
       ...dishData,
-      options: dishData.options.map((item, i) =>
+      option: dishData.option.map((item, i) =>
         i === index
           ? {
               ...item,
@@ -110,7 +113,7 @@ export default function AddProduct() {
   const handleUpdateOptionName = (index, newName) => {
     setDishData({
       ...dishData,
-      options: dishData.options.map((item, i) =>
+      option: dishData.option.map((item, i) =>
         i === index ? { ...item, name: newName } : item
       ),
     });
@@ -119,7 +122,7 @@ export default function AddProduct() {
   const handleUpdateChoiceName = (optIndex, choiceIndex, newName) => {
     setDishData({
       ...dishData,
-      options: dishData.options.map((item, i) =>
+      option: dishData.option.map((item, i) =>
         i === optIndex
           ? {
               ...item,
@@ -135,7 +138,7 @@ export default function AddProduct() {
   const handleUpdateChoicePrice = (optIndex, choiceIndex, newPrice) => {
     setDishData({
       ...dishData,
-      options: dishData.options.map((item, i) =>
+      option: dishData.option.map((item, i) =>
         i === optIndex
           ? {
               ...item,
@@ -151,14 +154,14 @@ export default function AddProduct() {
   const handleDeleteOption = (optIndex) => {
     setDishData({
       ...dishData,
-      options: dishData.options.filter((_, i) => i !== optIndex),
+      option: dishData.option.filter((_, i) => i !== optIndex),
     });
   };
 
   const handleDeleteChoice = (optIndex, choiceIndex) => {
     setDishData({
       ...dishData,
-      options: dishData.options.map((item, i) =>
+      option: dishData.option.map((item, i) =>
         i === optIndex
           ? {
               ...item,
@@ -187,13 +190,18 @@ export default function AddProduct() {
         </div>
         <div className="p-2 space-x-3 flex">
           <button
-            className={`${isUpLoading?"bg-gray-500":"bg-green-600"} p-2 text-white rounded-xl`}
+            className={`${
+              isUpLoading ? "bg-gray-500" : "bg-green-600"
+            } p-2 text-white rounded-xl`}
             onClick={handleAdd}
           >
             {isUpLoading ? (
               <>
-                <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
-                Đang tạo 
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  className="animate-spin mr-2"
+                />
+                Đang tạo
               </>
             ) : (
               <>
@@ -241,11 +249,32 @@ export default function AddProduct() {
                   type="number"
                   min={0}
                   onChange={(e) =>
-                    setDishData({ ...dishData, basePrice: e.target.value })
+                    setDishData({ ...dishData, price: e.target.value })
                   }
                   className="w-full pl-5 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none"
                 />
               </div>
+            </div>
+            <div className="flex items-center">
+              <label className=" font-medium text-gray-700 w-34">
+                phân loại :
+              </label>
+              <select
+                className="p-3 border border-gray-300 rounded-lg focus:outline-none"
+                value={dishData.categoryId||""}
+                onChange={(e) =>
+                  setDishData({ ...dishData, categoryId: e.target.value })
+                }
+              >
+                <option value="" disabled hidden>
+                  -- Chọn phân loại --
+                </option>
+                {categories.map((item, index) => (
+                  <option value={item._id} key={index}>
+                    {item.categoryName}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex items-center space-x-4">
               <label className=" font-medium text-gray-700 w-30">Mô tả:</label>
@@ -263,7 +292,7 @@ export default function AddProduct() {
               </label>
               <div className="space-y-5">
                 <div className="space-y-3">
-                  {dishData.options.map((option, optionIndex) => (
+                  {dishData.option?.map((option, optionIndex) => (
                     <div
                       className="bg-gray-100 p-4 rounded-2xl border border-gray-300 space-y-4"
                       key={optionIndex}

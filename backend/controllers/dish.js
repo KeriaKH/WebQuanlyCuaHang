@@ -61,7 +61,7 @@ const getDish = async (req, res) => {
 const getDishbyId = async (req, res) => {
   const { id } = req.params;
   try {
-    const dish = await Dish.findById(id);
+    const dish = await Dish.findById(id)
     if (!dish)
       return res.status(404).json({ message: "không tìm thấy món ăn" });
     return res.status(200).json({ dish });
@@ -71,7 +71,51 @@ const getDishbyId = async (req, res) => {
   }
 };
 
+const updateDish = async (req, res) => {
+  const { id } = req.params;
+  const dishData=req.body
+  try {
+    const dish = await Dish.findByIdAndUpdate(id,dishData)
+    if (!dish)
+      return res.status(404).json({ message: "không tìm thấy món ăn" });
+    return res.status(200).json({ dish });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteDish = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const dish = await Dish.findByIdAndDelete(id)
+    if (!dish)
+      return res.status(404).json({ message: "không tìm thấy món ăn" });
+    return res.status(200).json({ dish });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const addDish = async (req, res) => {
+  const dishData=req.body
+  try {
+    const dish = await Dish.create(dishData)
+    if (!dish)
+      return res.status(404).json({ message: "không tìm thấy món ăn" });
+    return res.status(200).json(dish);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 module.exports = {
   getDish,
   getDishbyId,
+  updateDish,
+  deleteDish,
+  addDish
 };

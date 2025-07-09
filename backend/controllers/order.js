@@ -1,3 +1,4 @@
+const order = require("../models/order");
 const Order = require("../models/order");
 const User = require("../models/user");
 const Voucher = require("../models/voucher");
@@ -6,7 +7,18 @@ const checkout = async (req, res) => {
   const { orderData } = req.body;
   try {
     console.log(orderData);
-    const order = await Order.create(orderData);
+    const orderWithSummary = {
+      ...orderData,
+      summary: orderData.orderItem.reduce(
+        (sum, item) =>
+          sum +
+          (item.price +
+            item.selectedOptions.reduce((sum, r) => sum + r.price, 0)) *
+            item.quantity,
+        0
+      ),
+    };
+    const order = await Order.create(orderWithSummary);
     const user = await User.findById(orderData.userId);
     user.cart = [];
     await user.save();
@@ -24,35 +36,53 @@ const checkout = async (req, res) => {
 
 const getOrderByUserId = async (req, res) => {
   const { id } = req.params;
-  const { page, limit } = req.query;
+  const { page, limit, delivered } = req.query;
   try {
+    console.log(delivered)
     const skip = (page - 1) * limit;
-    const order = await Order.find({ userId: id, order_status: "delivered" })
+    const order = await Order.find({
+      userId: id,
+      order_status: delivered==="1"? "delivered" : { $ne: "delivered" },
+    })
       .populate("orderItem.dishId")
       .skip(skip)
       .limit(limit);
-    const count = await Order.countDocuments({ order_status: "delivered" });
-
-    const ordersWithSummary = order.map((order) => {
-      const summary = order.orderItem.reduce((total, item) => {
-        const optionPrice =
-          item.selectedOptions?.reduce(
-            (optSum, opt) => optSum + opt.price,
-            0
-          ) || 0;
-        return total + (item.price + optionPrice) * item.quantity;
-      }, 0);
-
-      return {
-        ...order.toObject(),
-        summary,
-      };
-    });
-    return res.status(200).json({ order: ordersWithSummary, count });
+    const count = order.length
+    return res.status(200).json({ order, count });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
   }
+};
+
+const getOrder = async (req, res) => {
+  const {
+    status,
+    sortBy = "createdAt",
+    sortOrder = -1,
+    search,
+    page,
+    limit,
+  } = req.query;
+  try {
+    const filter = {};
+    if (status !== "all") filter.order_status = status;
+    if (search !== "") filter._id = { $regex: search, $option: "i" };
+
+    const sort = {
+      [sortBy]: Number(sortOrder),
+    };
+
+    const skip = (page - 1) * limit;
+
+    const order = await Order.find(filter)
+      .populate({ path: "userId", select: "-password -cart -address -role" })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+    const count = order.length;
+    return res.status(200).json({ order, count });
+  } catch (error) {}
 };
 
 const getOrderByid = async (req, res) => {
@@ -67,18 +97,7 @@ const getOrderByid = async (req, res) => {
       .populate("voucherId");
     if (!order)
       return res.status(404).json({ message: "không tìm thấy order" });
-    const orderWithSummary = {
-      ...order.toObject(),
-      summary: order.orderItem.reduce(
-        (sum, item) =>
-          sum +
-          (item.price +
-            item.selectedOptions.reduce((sum, r) => sum + r.price, 0)) *
-            item.quantity,
-        0
-      ),
-    };
-    return res.status(200).json(orderWithSummary);
+    return res.status(200).json(order);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
@@ -88,7 +107,6 @@ const getOrderByid = async (req, res) => {
 const getDashboarData = async (req, res) => {
   try {
     const order = await Order.find({ order_status: "delivered" });
-    console.log(order);
 
     const totalOrder = order.length;
     const deliveryOrder = await Order.countDocuments({
@@ -121,29 +139,15 @@ const getDashboarData = async (req, res) => {
 
     const monthOrder = monthOrderData.length;
 
-    const totalRevenue = order.reduce((sum, orderDoc) => {
-      const itemTotal = orderDoc.orderItem.reduce((orderSum, item) => {
-        const optionTotal =
-          item.selectedOptions?.reduce(
-            (optSum, opt) => optSum + opt.price,
-            0
-          ) || 0;
-        return orderSum + (item.price + optionTotal) * item.quantity;
-      }, 0);
-      return sum + itemTotal;
-    }, 0);
+    const totalRevenue = order.reduce(
+      (sum, orderDoc) => sum + orderDoc.summary,
+      0
+    );
 
-    const monthRevenue = monthOrderData.reduce((sum, orderDoc) => {
-      const itemTotal = orderDoc.orderItem.reduce((orderSum, item) => {
-        const optionTotal =
-          item.selectedOptions?.reduce(
-            (optSum, opt) => optSum + opt.price,
-            0
-          ) || 0;
-        return orderSum + (item.price + optionTotal) * item.quantity;
-      }, 0);
-      return sum + itemTotal;
-    }, 0);
+    const monthRevenue = monthOrderData.reduce(
+      (sum, orderDoc) => sum + orderDoc.summary,
+      0
+    );
 
     return res.status(200).json({
       totalOrder,
@@ -159,4 +163,24 @@ const getDashboarData = async (req, res) => {
   }
 };
 
-module.exports = { checkout, getOrderByUserId, getOrderByid, getDashboarData };
+const confirmOrder = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const order = await Order.findByIdAndUpdate(id, {
+      order_status: "cooking",
+    });
+    res.status(200).json({ message: "thành công" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  checkout,
+  getOrderByUserId,
+  getOrderByid,
+  getDashboarData,
+  getOrder,
+  confirmOrder,
+};

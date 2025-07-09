@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import { formatCurrencyVN } from "../../utils/Format";
+import { formatCurrencyVN, formatDateVN } from "../../utils/Format";
 
 const OrderCard = ({ loading,item }) => {
   const getStatusColor = (status) => {
@@ -54,36 +54,36 @@ const OrderCard = ({ loading,item }) => {
       </div>
     );
   return (
-    <Link to={`/Order/${item.id}`} className="flex flex-col rounded-xl bg-surface/60 hover:bg-surface shadow-md p-2 gap-4 bg-white">
+    <Link to={`/Order/${item._id}`} className="flex flex-col rounded-xl bg-surface/60 hover:bg-surface shadow-md p-2 gap-4 bg-white">
       <div className="flex gap-2 items-center">
-        <div className="size-28 rounded-full overflow-hidden bg-gray-100">
+        <div className="size-15 rounded-full overflow-hidden bg-gray-100">
           <img
-            src={item.userProfile.avatar}
+            src={item.userId.avatar}
             alt="Avatar"
             className="w-full h-full object-cover"
           />
         </div>
         <div className="grow flex justify-between items-center">
-          <div className="font-bold">{item.userProfile.fullName}</div>
+          <div className="font-bold">{item.userId.name}</div>
           <div className="text-end text-sm opacity-70 space-y-2">
-            <div>{item.orderNumber}</div>
+            <div>{item._id}</div>
             <div>
-              <FontAwesomeIcon icon={faCalendar} /> {item.orderDate}
+              <FontAwesomeIcon icon={faCalendar} /> {formatDateVN(item.createdAt)}
             </div>
-            <div>{item.orderTotalQuantity} items</div>
+            <div>{item.orderItem.length} items</div>
           </div>
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 bg-black/10 p-4 rounded-2xl">
         <div
           className={`font-semibold px-2 py-1 rounded-full ${getStatusColor(
-            "pending"
+            item.order_status
           )}`}
         >
-          <FontAwesomeIcon icon={getStatusIcon("pending")} /> pending
+          <FontAwesomeIcon icon={getStatusIcon(item.order_status)} /> {item.order_status}
         </div>
         <div className="text-green-500 font font-semibold">
-          <FontAwesomeIcon icon={faMoneyBill} /> {formatCurrencyVN(item.orderTotalAmount)}
+          <FontAwesomeIcon icon={faMoneyBill} /> {formatCurrencyVN(item.summary)}
         </div>
       </div>
     </Link>

@@ -8,18 +8,18 @@ import {
   faSpinner,
   faTrash,
   faX,
-  faXmark
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../components/common/AuthContext";
+import { uploadImage } from "../../services/cloudinary";
+import { getCategories } from "../../services/userServices/categoryService";
 import {
   deleteDish,
   getDishbyId,
   updateDish,
-  uploadImage,
-} from "../../services/hosResServices/Product";
+} from "../../services/userServices/dishService";
 import { formatCurrencyVN } from "../../utils/Format";
 
 export default function ProductDetailPage() {
@@ -29,30 +29,24 @@ export default function ProductDetailPage() {
   const [dish, setDish] = useState({});
   const [fileSelected, setFileSelected] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const { user } = useAuth();
+  const [categories, setcategories] = useState([]);
   const { id } = useParams();
 
   const handleAddOption = () => {
     setDish({
       ...dish,
-      options: [
-        ...dish.options,
-        { name: "", type: "single", required: true, choices: [] },
-      ],
+      option: [...dish.option, { optionName: "", choices: [] }],
     });
   };
 
   const handleAddChoice = (index) => {
     setDish({
       ...dish,
-      options: dish.options.map((item, i) =>
+      option: dish.option.map((item, i) =>
         i === index
           ? {
               ...item,
-              choices: [
-                ...item.choices,
-                { name: "", price: 0, default: false },
-              ],
+              choices: [...item.choices, { name: "", price: 0 }],
             }
           : item
       ),
@@ -62,7 +56,7 @@ export default function ProductDetailPage() {
   const handleUpdateOptionName = (index, newName) => {
     setDish({
       ...dish,
-      options: dish.options.map((item, i) =>
+      option: dish.option.map((item, i) =>
         i === index ? { ...item, name: newName } : item
       ),
     });
@@ -71,7 +65,7 @@ export default function ProductDetailPage() {
   const handleUpdateChoiceName = (optIndex, choiceIndex, newName) => {
     setDish({
       ...dish,
-      options: dish.options.map((item, i) =>
+      option: dish.option.map((item, i) =>
         i === optIndex
           ? {
               ...item,
@@ -87,7 +81,7 @@ export default function ProductDetailPage() {
   const handleUpdateChoicePrice = (optIndex, choiceIndex, newPrice) => {
     setDish({
       ...dish,
-      options: dish.options.map((item, i) =>
+      option: dish.option.map((item, i) =>
         i === optIndex
           ? {
               ...item,
@@ -103,14 +97,14 @@ export default function ProductDetailPage() {
   const handleDeleteOption = (optIndex) => {
     setDish({
       ...dish,
-      options: dish.options.filter((_, i) => i !== optIndex),
+      option: dish.option.filter((_, i) => i !== optIndex),
     });
   };
 
   const handleDeleteChoice = (optIndex, choiceIndex) => {
     setDish({
       ...dish,
-      options: dish.options.map((item, i) =>
+      option: dish.option.map((item, i) =>
         i === optIndex
           ? {
               ...item,
@@ -122,15 +116,9 @@ export default function ProductDetailPage() {
   };
 
   const handleUpdateActive = async () => {
-    let tmp = {
-      name: dish.name,
-      basePrice: dish.basePrice,
-      description: dish.description,
-      images: dish.images,
-      options: dish.options,
-      active: !isSale,
-    };
-    await updateDish(id, tmp);
+    const { _id, ...rest } = dish;
+    const tmp={...rest,available:!isSale}
+    await updateDish(_id, tmp);
     setIsSale(!isSale);
   };
 
@@ -162,37 +150,35 @@ export default function ProductDetailPage() {
   };
 
   const handleUpdate = async () => {
-    let tmp = {
-      name: dish.name,
-      basePrice: dish.basePrice,
-      description: dish.description,
-      images: dish.images,
-      options: dish.options,
-      active: dish.active,
-    };
+    const { _id, ...rest } = dish;
+    let dishWiwhoutId = rest;
     setIsUpLoading(true);
     if (fileSelected) {
-      const image = await uploadImage(fileSelected, user.token);
-      tmp = { ...tmp, images: [image.data.url] };
+      const image = await uploadImage(fileSelected);
+      dishWiwhoutId = { ...dishWiwhoutId, image:image.imageUrl };
     }
-    await updateDish(id, tmp);
+    await updateDish(_id, dishWiwhoutId);
     setIsUpLoading(false);
     setFileSelected(null);
     setIsEditing(!isEditing);
   };
 
   const handleDelete = async () => {
-    await deleteDish(dish.id);
+    await deleteDish(dish._id);
     nav("/Product");
   };
 
   useEffect(() => {
-    getDishbyId(id, user.token).then((res) => {
-      console.log(res);
-      setDish(res);
-      setIsSale(res.active);
+    getDishbyId(id).then((res) => {
+      console.log(res.dish);
+      setDish(res.dish);
+      setIsSale(res.dish.available);
     });
-  }, [user, id]);
+    getCategories().then((res) => {
+      console.log(res);
+      setcategories(res.categories);
+    });
+  }, [id]);
   const nav = useNavigate();
   return (
     <div className="w-[80%] mx-auto">
@@ -208,7 +194,7 @@ export default function ProductDetailPage() {
             <h1 className="text-2xl font-bold text-gray-800">
               Chi tiết món ăn
             </h1>
-            <p className="text-gray-600">{dish.id}</p>
+            <p className="text-gray-600">{dish._id}</p>
           </div>
         </div>
         <div className="p-2 space-x-3 flex">
@@ -283,9 +269,13 @@ export default function ProductDetailPage() {
           )}
         </div>
       </div>
-      <div className="flex space-x-5 w-full bg-gray-100 p-3">
-        <div className="w-[40%] flex flex-col items-center caret-transparent mt-5">
-          <img src={previewImage || (dish.images && dish.images[0])} alt="" />
+      <div className="flex space-x-5 w-full bg-gray-100 p-5 mt-5 rounded-2xl">
+        <div className="w-[40%] h-90 flex flex-col items-center caret-transparent ">
+          <img
+            src={previewImage || dish.image}
+            alt=""
+            className="w-full h-90 object-cover shadow"
+          />
           {isEditing ? (
             <label className="bg-blue-500 text-white px-4 py-2 mt-5 rounded cursor-pointer text-sm hover:bg-blue-600 transition">
               Thay hình ảnh
@@ -300,7 +290,7 @@ export default function ProductDetailPage() {
             ""
           )}
         </div>
-        <div className="bg-white rounded-xl shadow-md p-6 w-full ">
+        <div className="bg-white rounded-xl shadow-md p-6 w-full min-h-90">
           <div className="space-y-4 ">
             <div className="flex items-center">
               <label className="font-medium text-gray-700 w-34">
@@ -309,7 +299,8 @@ export default function ProductDetailPage() {
               {isEditing ? (
                 <input
                   type="text"
-                  defaultValue={dish.name}
+                  value={dish.name}
+                  onChange={(e) => setDish({ ...dish, name: e.target.value })}
                   className="w-[80%] p-3 border border-gray-300 rounded-lg focus:outline-none"
                 />
               ) : (
@@ -324,13 +315,40 @@ export default function ProductDetailPage() {
                 <div className="relative">
                   <input
                     type="number"
-                    defaultValue={dish.basePrice}
+                    value={dish.price}
+                    onChange={(e) =>
+                      setDish({ ...dish, price: e.target.value })
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none"
                   />
                 </div>
               ) : (
                 <p className="text-2xl font-bold text-green-600">
-                  {formatCurrencyVN(dish.basePrice)}
+                  {formatCurrencyVN(dish.price)}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center">
+              <label className=" font-medium text-gray-700 w-34">
+                phân loại :
+              </label>
+              {isEditing ? (
+                <select
+                  className="p-3 border border-gray-300 rounded-lg focus:outline-none"
+                  value={dish.categoryId}
+                  onChange={(e) =>
+                    setDish({ ...dish, categoryId: e.target.value })
+                  }
+                >
+                  {categories.map((item, index) => (
+                    <option value={item._id} key={index}>
+                      {item.categoryName}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-600 leading-relaxed">
+                  {categories?.find((item) => item._id === dish.categoryId)?.categoryName}
                 </p>
               )}
             </div>
@@ -339,7 +357,10 @@ export default function ProductDetailPage() {
               {isEditing ? (
                 <textarea
                   rows={4}
-                  defaultValue={dish.description}
+                  value={dish.description}
+                  onChange={(e) =>
+                      setDish({ ...dish, description: e.target.value })
+                    }
                   className="w-[80%] p-3 border border-gray-300 rounded-lg focus:outline-none"
                 />
               ) : (
@@ -355,7 +376,7 @@ export default function ProductDetailPage() {
               {isEditing ? (
                 <div className="space-y-5">
                   <div className="space-y-3">
-                    {dish.options?.map((option, optionIndex) => (
+                    {dish.option?.map((option, optionIndex) => (
                       <div
                         className="bg-gray-100 p-4 rounded-2xl border border-gray-300 space-y-4"
                         key={optionIndex}
@@ -363,7 +384,7 @@ export default function ProductDetailPage() {
                         <div className="space-x-2 flex items-center">
                           <input
                             type="text"
-                            value={option.name}
+                            value={option.optionName}
                             placeholder="tên lựa chọn"
                             onChange={(e) =>
                               handleUpdateOptionName(
@@ -441,18 +462,18 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {dish.options?.length === 0 ? (
+                  {dish.option?.length === 0 ? (
                     <div className="text-gray-500 text-center py-8">
                       Chưa có lựa chọn nào. Bấm "Chỉnh sửa" để thêm.
                     </div>
                   ) : (
-                    dish.options?.map((option, optionIndex) => (
+                    dish.option?.map((option, optionIndex) => (
                       <div
                         key={optionIndex}
                         className="border border-gray-200 rounded-lg p-4"
                       >
                         <h4 className="font-medium text-gray-800 mb-2">
-                          {option.name || "Chưa đặt tên"}
+                          {option.optionName || "Chưa đặt tên"}
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {option.choices.length === 0 ? (

@@ -28,7 +28,7 @@ export default function CategoryItem({ voucher, handleDelete, edit}) {
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                Đơn tối thiểu: {formatCurrencyVN(voucher.minimumOrderAmount)}
+                Đơn tối thiểu: {formatCurrencyVN(voucher.minimum)}
               </p>
             </div>
 
@@ -48,7 +48,7 @@ export default function CategoryItem({ voucher, handleDelete, edit}) {
                   <FontAwesomeIcon icon={faBoxOpen} />
                   <span>Còn lại</span>
                 </div>
-                <p className={`font-medium `}>{voucher.remainingValue}</p>
+                <p className={`font-medium`}>{voucher.quantity}</p>
               </div>
             </div>
           </div>
@@ -60,7 +60,7 @@ export default function CategoryItem({ voucher, handleDelete, edit}) {
           </button>
           <button
             className=" hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-            onClick={() => handleDelete(voucher.id)}
+            onClick={() => handleDelete(voucher._id)}
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>

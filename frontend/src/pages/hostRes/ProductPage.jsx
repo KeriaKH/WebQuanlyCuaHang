@@ -3,13 +3,13 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CustomSelect from "../../components/CustomSelect";
 import ProductCard from "../../components/hostRes/ProductCard";
 import Pagination from "../../components/Pagination";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../components/common/AuthContext";
-import { getAllDish } from "../../services/hosResServices/Product";
+import { getCategories } from "../../services/userServices/categoryService";
+import { getDishs } from "../../services/userServices/dishService";
 
 export default function ProductPage() {
   const LIMIT = 12;
@@ -20,26 +20,21 @@ export default function ProductPage() {
   const [dish, setDish] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
-  const { user, resId } = useAuth();
+  const [categories, setcategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
   useEffect(() => {
-    if (resId) {
-      getAllDish(resId, user.token).then((res) => {
-        console.log(res.data)
-        setDish(res.data);
-        setCount(res.count);
-      });
-      setTimeout(() => setIsLoading(false), 500);
-    }
-  }, [user,resId]);
-
-  let sortedDish = [...dish];
-
-  if (priceSort === 1) {
-    sortedDish.sort((a, b) => a.basePrice - b.basePrice);
-  } else if (priceSort === -1) {
-    sortedDish.sort((a, b) => b.basePrice - a.basePrice);
-  }
+    getCategories().then((res) => {
+      console.log(res.categories);
+      setcategories(res.categories);
+    });
+    getDishs(page, LIMIT, search, selectedCategory,'price',priceSort).then((res) => {
+      console.log(res);
+      setDish(res.dishs);
+      setCount(res.count);  
+    });
+    setTimeout(() => setIsLoading(false), 500);
+  }, [page,search,selectedCategory,priceSort]);
 
   return (
     <div className="w-full p-3 space-y-5">
@@ -48,7 +43,7 @@ export default function ProductPage() {
         <p>Món ăn</p>
       </div>
       <div className="bg-gray-200 flex justify-between p-2 px-4 rounded-xl text-xl font-semibold items-center">
-        <p>{dish.length} Món ăn</p>
+        <p>{count} Món ăn</p>
         <button
           className="text-white bg-green-500 text-lg p-2 rounded-lg"
           onClick={() => nav("/Product/add")}
@@ -69,8 +64,23 @@ export default function ProductPage() {
         </div>
       </div>
       <div className="bg-gray-200 p-3 px-5 rounded-xl flex items-center text-sm">
-        <p className="text-xl font-semibold">{dish.length} kết quả</p>
+        <p className="text-xl font-semibold">{dish?.length} kết quả</p>
         <div className="flex items-center ml-auto space-x-4">
+          <div className="bg-white flex items-center p-1 space-x-2 rounded  ">
+            <p>
+              Phân loạ<i></i>:
+            </p>
+            <CustomSelect
+              options={[
+                { name: "Tất cả", value: "Tất cả" },
+                ...categories.map((item) => ({
+                  name: item.categoryName,
+                  value: item.categoryName,
+                })),
+              ]}
+              handleChange={setSelectedCategory}
+            />
+          </div>
           <div className="bg-white flex items-center p-1 space-x-2 rounded">
             <p>Giá tiền:</p>
             <CustomSelect
@@ -89,11 +99,7 @@ export default function ProductPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <ProductCard key={index} Loading={true} />
             ))
-          : sortedDish
-              .filter((item) =>
-                item.name.toLowerCase().includes(search.toLowerCase())
-              )
-              .map((item, index) => <ProductCard key={index} item={item} />)}
+          : dish?.map((item, index) => <ProductCard key={index} item={item} />)}
       </div>
       <Pagination
         limit={LIMIT}

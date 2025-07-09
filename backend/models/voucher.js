@@ -7,9 +7,11 @@ const voucherSchema = mongoose.Schema(
     value: { type: Number, required: true },
     minimum: { type: Number, required: true, default: 0 },
     expiresAt: { type: Date, required: true },
-    usedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+    usedBy: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "user", default: [] },
+    ],
   },
-  { timestamps: true, }
+  { timestamps: true }
 );
 
-module.exports=mongoose.model('voucher',voucherSchema)
+module.exports = mongoose.model("voucher", voucherSchema);
