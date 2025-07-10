@@ -2,6 +2,7 @@
 const axios = require("axios").default; // npm install axios
 const CryptoJS = require("crypto-js"); // npm install crypto-js
 const moment = require("moment"); // npm install moment
+const { checkout } = require("../controllers/order");
 
 // APP INFO
 const config = {
@@ -71,12 +72,6 @@ const callbackZaloPay = async (req, res) => {
       result.return_code = -1;
       result.return_message = "mac not equal";
     } else {
-      let dataJson = JSON.parse(dataStr, config.key2);
-      console.log(
-        "update order's status = success where app_trans_id =",
-        dataJson["app_trans_id"]
-      );
-
       result.return_code = 1;
       result.return_message = "success";
     }
@@ -84,9 +79,7 @@ const callbackZaloPay = async (req, res) => {
     result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
     result.return_message = ex.message;
   }
-
-  // thông báo kết quả cho ZaloPay server
-  res.json(result);
+  return res.status(200).json(result) 
 };
 
 module.exports = { createOrderWithZaloPay,callbackZaloPay };
