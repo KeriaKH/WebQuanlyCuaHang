@@ -27,7 +27,7 @@ const createOrderWithZaloPay = async (req, res) => {
     amount: orderData.summary,
     description: `OrderUp - Payment for the order #${transID}`,
     bank_code: "",
-    
+    callback_url: `https://webquanlycuahang.onrender.com/api/order/zalopay-callback`,
   };
 
   // appid|app_trans_id|appuser|amount|apptime|embeddata|item
@@ -48,11 +48,45 @@ const createOrderWithZaloPay = async (req, res) => {
   order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
 
   try {
-    const result =await axios.post(config.endpoint, null,{params:order});
-    return res.status(200).json(result.data)
+    const result = await axios.post(config.endpoint, null, { params: order });
+    return res.status(200).json(result.data);
   } catch (error) {
     console.log(error.message);
   }
 };
 
-module.exports={createOrderWithZaloPay}
+const callbackZaloPay = async (req, res) => {
+  let result = {};
+
+  try {
+    let dataStr = req.body.data;
+    let reqMac = req.body.mac;
+
+    let mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
+    console.log("mac =", mac);
+
+    // kiểm tra callback hợp lệ (đến từ ZaloPay server)
+    if (reqMac !== mac) {
+      // callback không hợp lệ
+      result.return_code = -1;
+      result.return_message = "mac not equal";
+    } else {
+      let dataJson = JSON.parse(dataStr, config.key2);
+      console.log(
+        "update order's status = success where app_trans_id =",
+        dataJson["app_trans_id"]
+      );
+
+      result.return_code = 1;
+      result.return_message = "success";
+    }
+  } catch (ex) {
+    result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
+    result.return_message = ex.message;
+  }
+
+  // thông báo kết quả cho ZaloPay server
+  res.json(result);
+};
+
+module.exports = { createOrderWithZaloPay,callbackZaloPay };
