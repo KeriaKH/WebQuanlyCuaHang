@@ -19,9 +19,13 @@ export const updateUser = async (id, userData) => {
   }
 };
 
-export const getUser = async () => {
+export const getUser = async (page, limit, search, sortBy, sortOrder) => {
   try {
-    const res = await api.get("/api/user/");
+    const res = await api.get(
+      sortBy && sortOrder !== 0
+        ? `/api/user?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`
+        : `/api/user?page=${page}&limit=${limit}&search=${search}`
+    );
     if (res.data) return res.data;
   } catch (error) {
     return error.response.data.message;

@@ -1,5 +1,5 @@
 import React from "react";
-import { formatDateVN } from "../../utils/Format";
+import { formatDateVN, formatDateVN1, formatDateVN2 } from "../../utils/Format";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faClock, faUser, faUsers } from "@fortawesome/free-solid-svg-icons";
 
@@ -74,7 +74,7 @@ export default function UserItem({item}) {
               Ngày sinh:
             </span>
             <span className="text-sm text-gray-600 ml-2">
-              {formatDateVN(item.dob)} ({calculateAge(item.dob)} tuổi)
+              {formatDateVN1(item.dob)} ({calculateAge(item.dob)} tuổi)
             </span>
           </div>
         </div>
