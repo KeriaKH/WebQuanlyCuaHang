@@ -62,6 +62,7 @@ const orderSchema = mongoose.Schema(
       enum: ["pending", "cooking", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
+    discountValue: { type: Number, default: 0 },
     summary: { type: Number, default: 0 },
   },
   { timestamps: true }

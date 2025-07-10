@@ -52,7 +52,11 @@ export default function HistoryDetailPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <img src={detail.userId.avatar} alt="" className="rounded-full"/>
+                  <img
+                    src={detail.userId.avatar}
+                    alt=""
+                    className="rounded-full"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">
@@ -90,27 +94,27 @@ export default function HistoryDetailPage() {
               <div className="flex justify-between text-gray-400">
                 Tạm tính:
                 <span className="text-black">
-                  {formatCurrencyVN(detail.summary)}
+                  {formatCurrencyVN(
+                    detail.summary - 30000 + (detail.discountValue || 0)
+                  )}
                 </span>
               </div>
               <div className="flex justify-between text-gray-400">
                 Giảm giá :
                 <span className="text-black">
-                  {formatCurrencyVN(detail.voucherId?.value)}
+                  {formatCurrencyVN(detail.discountValue)}
                 </span>
               </div>
               <div className="flex justify-between text-gray-400">
                 Phí vận chuyển:
-                <span className="text-black">
-                  {formatCurrencyVN(30000)}
-                </span>
+                <span className="text-black">{formatCurrencyVN(30000)}</span>
               </div>
               <div className="flex justify-between text-lg font-bold text-gray-800">
                 <p>
                   <FontAwesomeIcon icon={faReceipt} /> Tổng cộng:
                 </p>
                 <span className="text-green-600 text-lg font-semibold">
-                  {formatCurrencyVN(detail.summary-detail.voucherId?.value||0+30000)}
+                  {formatCurrencyVN(detail.summary)}
                 </span>
               </div>
             </div>

@@ -17,7 +17,7 @@ export default function SideBar() {
     { icon: faTruck, name: "Order" },
     { icon: faBowlRice, name: "Product" },
     { icon: faTicket, name: "Voucher" },
-    { icon: faHouseUser, name: "ResProfile" },
+    { icon: faHouseUser, name: "User" },
     { icon: faTag, name: "Category" },
   ];
 

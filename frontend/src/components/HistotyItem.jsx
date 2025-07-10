@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import { formatCurrencyVN, formatDateVN1 } from "../utils/Format";
 
-export default function HistotyItem({ item }) {
+export default function HistotyItem({ item, tab }) {
   const nav = useNavigate();
 
   return (
@@ -21,7 +21,11 @@ export default function HistotyItem({ item }) {
             <p className="font-bold text-xl">{item._id}</p>
             <div className="space-x-5">
               <button
-                onClick={() => nav(`/history/${item._id}`,{state:{item}})}
+                onClick={() =>
+                  tab === 1
+                    ? nav(`/history/${item._id}`)
+                    : nav(`/tracking/${item._id}`)
+                }
                 className="font-semibold"
               >
                 Xem chi tiết

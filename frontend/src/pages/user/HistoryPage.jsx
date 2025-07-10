@@ -10,7 +10,7 @@ export default function HistoryPage() {
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(0);
   useEffect(() => {
     getOrderByUserId(user.id, page, LIMIT,activeTab).then((res) => {
       setCount(res.count || 0);
@@ -59,7 +59,7 @@ export default function HistoryPage() {
       {history && (
         <div className="space-y-7 mb-10 ">
           {history.map((item, index) => (
-            <HistotyItem key={index} item={item} />
+            <HistotyItem key={index} item={item} tab={activeTab} />
           ))}
         </div>
       )}

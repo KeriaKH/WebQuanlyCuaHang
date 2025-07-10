@@ -29,6 +29,17 @@ const getUserbyId = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  try {
+    const user = await User.find().select("-password -cart -address");
+    const count=user.length
+    return res.status(200).json(user,count);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const updateUser = async (req, res) => {
   const { id } = req.params;
   const userData = req.body;
@@ -233,5 +244,6 @@ module.exports = {
   updateAddress,
   getAddrress,
   getUserbyId,
-  updateUser
+  updateUser,
+  getUser
 };

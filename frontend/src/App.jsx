@@ -12,12 +12,13 @@ import LoginPage from "./pages/auth/LoginPage";
 import SignUpPage from "./pages/auth/SignUpPage";
 import HomePage from "./pages/HomePage";
 import AddProduct from "./pages/hostRes/AddProduct";
+import CategoryPage from "./pages/hostRes/CategoryPage";
 import Dashboard from "./pages/hostRes/Dashboard";
 import OrderDetailPage from "./pages/hostRes/OrderDetailPage";
 import OrderPage from "./pages/hostRes/OrderPage";
 import ProductDetailPage from "./pages/hostRes/ProductDetailPage";
 import ProductPage from "./pages/hostRes/ProductPage";
-import RestaurantProfile from "./pages/hostRes/ResProfile";
+import UserPage from "./pages/hostRes/UserPage";
 import VoucherPage from "./pages/hostRes/VoucherPage";
 import ShopPage from "./pages/ShopPage";
 import UnAuthorizedPage from "./pages/UnAuthorizePage";
@@ -29,7 +30,6 @@ import HistoryPage from "./pages/user/HistoryPage";
 import PaymentPage from "./pages/user/PaymentPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import TrackingPage from "./pages/user/TrackingPage";
-import CategoryPage from "./pages/hostRes/CategoryPage";
 
 export default function App() {
   return (
@@ -72,7 +72,7 @@ export default function App() {
           <Route path="Product/:id" element={<ProductDetailPage />} />
           <Route path="Voucher" element={<VoucherPage />} />
           <Route path="Category" element={<CategoryPage />} />
-          <Route path="ResProfile" element={<RestaurantProfile />} />
+          <Route path="User" element={<UserPage />} />
         </Route>
       </Route>
     </Routes>

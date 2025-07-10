@@ -38,6 +38,8 @@ export default function CartPage() {
   };
 
   const handlePayment = () => {
+    if(cart.length<=0)
+      return alert("vui lòng thêm món ăn vào giỏ hàng")
     navigate("/payment", {
       state: {
         cart: cart,

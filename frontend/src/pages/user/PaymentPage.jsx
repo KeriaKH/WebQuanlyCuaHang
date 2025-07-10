@@ -60,16 +60,18 @@ export default function PaymentPage() {
         dishId: item.dishId._id,
       })),
       userId: user.id,
-      voucherId: discount._id,
-      summary:subtotal + 30000 - (discount.value || 0)
+      voucherId: discount?._id,
+      discountValue: discount?.value || 0,
+      summary: subtotal + 30000 - (discount.value || 0),
     };
     if (paymentMethod === "cod") {
-      await checkout(tmp).then((res) => navigate(`/tracking/${res.id}`));
+      await checkout(tmp).then((res) => navigate(`/tracking/${res._id}`));
     } else {
       localStorage.setItem("orderData", JSON.stringify(tmp));
       await checkoutWithZaloPay(tmp).then((res) => {
-        console.log(res)
-        window.location.href = res.order_url});
+        console.log(res);
+        window.location.href = res.order_url;
+      });
     }
   };
   return (
