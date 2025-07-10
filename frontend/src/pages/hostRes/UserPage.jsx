@@ -4,6 +4,7 @@ import { getUser } from "../../services/userServices/profileService";
 import { faMagnifyingGlass, faUser } from "@fortawesome/free-solid-svg-icons";
 import UserItem from "../../components/hostRes/UserItem";
 import CustomSelect from "../../components/CustomSelect";
+import Pagination from "../../components/Pagination";
 
 const UserPage = () => {
   const LIMIT=10;
@@ -58,7 +59,7 @@ const UserPage = () => {
         </div>
       </div>
       <div className=" bg-gray-200 p-4 space-y-3 rounded-2xl grid grid-cols-3 gap-5">
-          {user.map((item, index) => <UserItem key={index} item={item} />)}
+          {user?.map((item, index) => <UserItem key={index} item={item} />)}
       </div>
       <Pagination
         limit={LIMIT}

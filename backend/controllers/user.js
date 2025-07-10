@@ -30,10 +30,23 @@ const getUserbyId = async (req, res) => {
 };
 
 const getUser = async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    sortBy = "createdAt",
+    sortOrder = -1,
+  } = req.query;
   try {
-    const user = await User.find().select("-password -cart -address");
-    const count=user.length
-    return res.status(200).json(user,count);
+    const filter = {};
+    filter.name = { $regex: search, $options: "i" };
+    const sort = {
+      [sortBy]: Number(sortOrder),
+    };
+    const skip=(page-1)*limit
+    const user = await User.find(filter).select("-password -cart -address").sort(sort).skip(skip);
+    const count = await User.countDocuments();
+    return res.status(200).json({ user, count });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
@@ -245,5 +258,5 @@ module.exports = {
   getAddrress,
   getUserbyId,
   updateUser,
-  getUser
+  getUser,
 };
