@@ -1,16 +1,16 @@
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { data, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
 import { useAuth } from "../../components/common/AuthContext";
 import { getAddress } from "../../services/userServices/addressService";
-import { formatAddress, formatCurrencyVN } from "../../utils/Format";
 import {
   checkout,
   checkoutWithZaloPay,
 } from "../../services/userServices/orderService";
+import { formatAddress, formatCurrencyVN } from "../../utils/Format";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
