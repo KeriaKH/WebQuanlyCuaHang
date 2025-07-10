@@ -10,7 +10,7 @@ export default function HistotyItem({ item }) {
     <div className="flex w-full shadow bg-white">
       <div className="w-36 h-32">
         <img
-          src={item.orderItem[0].dishId.image}
+          src={item.orderItem[0]?.dishId?.image}
           alt=""
           className="w-36 h-32 object-cover "
         />

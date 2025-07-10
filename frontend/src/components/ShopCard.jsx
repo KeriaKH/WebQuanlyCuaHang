@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 export default function ShopCard({ dishDetail }) {
-  console.log(dishDetail);
   const [showProductPopUp, setShowProductPopUp] = useState(false);
   const navigate = useNavigate();
 

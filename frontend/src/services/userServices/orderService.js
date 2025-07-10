@@ -11,6 +11,17 @@ export const checkout = async (orderData) => {
   }
 };
 
+export const checkoutWithZaloPay = async (orderData) => {
+  try {
+    const res = await api.post("/api/order/zalopay",  orderData );
+    if (res.data) return res.data;
+    return {};
+  } catch (error) {
+    console.log(error);
+    return error.response.data.message;
+  }
+};
+
 export const getOrderByUserId = async (id, page, limit,delivered) => {
   try {
     const res = await api.get(

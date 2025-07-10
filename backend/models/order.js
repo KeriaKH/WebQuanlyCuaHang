@@ -8,6 +8,8 @@ const orderItemSchema = new mongoose.Schema(
       ref: "dish",
       required: true,
     },
+    name: { type: String, required: true },
+    image: { type: String, require: true },
     quantity: {
       type: Number,
       required: true,
@@ -60,7 +62,7 @@ const orderSchema = mongoose.Schema(
       enum: ["pending", "cooking", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
-    summary:{type:Number,default:0}
+    summary: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

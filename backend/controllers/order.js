@@ -1,4 +1,4 @@
-const order = require("../models/order");
+const Dish=require('../models/dish')
 const Order = require("../models/order");
 const User = require("../models/user");
 const Voucher = require("../models/voucher");
@@ -6,19 +6,8 @@ const Voucher = require("../models/voucher");
 const checkout = async (req, res) => {
   const { orderData } = req.body;
   try {
-    console.log(orderData);
-    const orderWithSummary = {
-      ...orderData,
-      summary: orderData.orderItem.reduce(
-        (sum, item) =>
-          sum +
-          (item.price +
-            item.selectedOptions.reduce((sum, r) => sum + r.price, 0)) *
-            item.quantity,
-        0
-      ),
-    };
-    const order = await Order.create(orderWithSummary);
+    console.log(orderData)
+    const order = await Order.create(orderData);
     const user = await User.findById(orderData.userId);
     user.cart = [];
     await user.save();
@@ -38,16 +27,16 @@ const getOrderByUserId = async (req, res) => {
   const { id } = req.params;
   const { page, limit, delivered } = req.query;
   try {
-    console.log(delivered)
+    console.log(delivered);
     const skip = (page - 1) * limit;
     const order = await Order.find({
       userId: id,
-      order_status: delivered==="1"? "delivered" : { $ne: "delivered" },
+      order_status: delivered === "1" ? "delivered" : { $ne: "delivered" },
     })
       .populate("orderItem.dishId")
       .skip(skip)
       .limit(limit);
-    const count = order.length
+    const count = order.length;
     return res.status(200).json({ order, count });
   } catch (error) {
     console.log(error);
@@ -93,7 +82,6 @@ const getOrderByid = async (req, res) => {
         path: "userId",
         select: "-address -cart -password -__v",
       })
-      .populate("orderItem.dishId")
       .populate("voucherId");
     if (!order)
       return res.status(404).json({ message: "không tìm thấy order" });

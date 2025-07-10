@@ -29,6 +29,7 @@ import HistoryPage from "./pages/user/HistoryPage";
 import PaymentPage from "./pages/user/PaymentPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import TrackingPage from "./pages/user/TrackingPage";
+import CategoryPage from "./pages/hostRes/CategoryPage";
 
 export default function App() {
   return (
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="Product/add" element={<AddProduct />} />
           <Route path="Product/:id" element={<ProductDetailPage />} />
           <Route path="Voucher" element={<VoucherPage />} />
+          <Route path="Category" element={<CategoryPage />} />
           <Route path="ResProfile" element={<RestaurantProfile />} />
         </Route>
       </Route>

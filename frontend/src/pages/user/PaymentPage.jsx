@@ -1,13 +1,16 @@
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { data, useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
 import { useAuth } from "../../components/common/AuthContext";
 import { getAddress } from "../../services/userServices/addressService";
 import { formatAddress, formatCurrencyVN } from "../../utils/Format";
-import { checkout } from "../../services/userServices/orderService";
+import {
+  checkout,
+  checkoutWithZaloPay,
+} from "../../services/userServices/orderService";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
@@ -20,7 +23,7 @@ export default function PaymentPage() {
   const cart = location.state?.cart || [];
   const subtotal = location.state?.subtotal;
   const discount = location.state?.discount || {};
-  console.log(cart)
+  console.log(cart);
   useEffect(() => {
     getAddress(user.id).then((res) => {
       console.log(res);
@@ -52,15 +55,25 @@ export default function PaymentPage() {
       orderItem: cart.map((item) => ({
         ...item,
         price: item.dishId.price,
+        name: item.dishId.name,
+        image: item.dishId.image,
         dishId: item.dishId._id,
       })),
-      userId:user.id,
-      voucherId:discount._id
+      userId: user.id,
+      voucherId: discount._id,
+      summary:subtotal + 30000 - (discount.value || 0)
     };
-    await checkout(tmp).then(res=>console.log(res))
-    navigate("/tracking", {
-      state: { cart, tmp, subtotal, discount },
-    });
+    if (paymentMethod === "cod") {
+      await checkout(tmp).then((res) => console.log(res));
+      navigate("/tracking", {
+        state: { cart, tmp, subtotal, discount },
+      });
+    } else {
+      await checkoutWithZaloPay(tmp).then((res) => {
+        console.log(res)
+        window.location.href = res.order_url});
+      await checkout(tmp)
+    }
   };
   return (
     <div className="w-[70vw] mx-auto">
