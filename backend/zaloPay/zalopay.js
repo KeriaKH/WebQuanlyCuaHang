@@ -2,7 +2,6 @@
 const axios = require("axios").default; // npm install axios
 const CryptoJS = require("crypto-js"); // npm install crypto-js
 const moment = require("moment"); // npm install moment
-const { checkout } = require("../controllers/order");
 
 // APP INFO
 const config = {
@@ -12,10 +11,10 @@ const config = {
   endpoint: "https://sb-openapi.zalopay.vn/v2/create",
 };
 
+
 const createOrderWithZaloPay = async (req, res) => {
   const embed_data = { redirecturl: "http://localhost:5173/tracking" };
 
-  const orderData = req.body;
   const items = [{}];
   const transID = Math.floor(Math.random() * 1000000);
   const order = {
@@ -28,7 +27,6 @@ const createOrderWithZaloPay = async (req, res) => {
     amount: orderData.summary,
     description: `OrderUp - Payment for the order #${transID}`,
     bank_code: "",
-    callback_url: `https://webquanlycuahang.onrender.com/api/order/zalopay-callback`,
   };
 
   // appid|app_trans_id|appuser|amount|apptime|embeddata|item
@@ -56,24 +54,4 @@ const createOrderWithZaloPay = async (req, res) => {
   }
 };
 
-const callbackZaloPay = async (req, res) => {
-  try {
-    let dataStr = req.body.data;
-    let reqMac = req.body.mac;
-
-    let mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
-    console.log("mac =", mac);
-
-    // kiểm tra callback hợp lệ (đến từ ZaloPay server)
-    if (reqMac !== mac) {
-      return res.redirect(`http://localhost:5173/tracking?payment=success`);
-    } else {
-      return res.redirect(`http://localhost:5173/tracking?payment=success`);
-    }
-  } catch (error) {
-    console.error("Callback error:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-module.exports = { createOrderWithZaloPay, callbackZaloPay };
+module.exports = { createOrderWithZaloPay };

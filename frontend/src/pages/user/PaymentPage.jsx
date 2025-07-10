@@ -69,10 +69,10 @@ export default function PaymentPage() {
         state: { cart, tmp, subtotal, discount },
       });
     } else {
+      localStorage.setItem("orderData", JSON.stringify(tmp));
       await checkoutWithZaloPay(tmp).then((res) => {
         console.log(res)
         window.location.href = res.order_url});
-      await checkout(tmp)
     }
   };
   return (

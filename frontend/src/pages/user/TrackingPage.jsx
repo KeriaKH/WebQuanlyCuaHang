@@ -9,21 +9,35 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalo from "../../assets/zalopay.png";
 import OrderItem from "../../components/hostRes/OrderItem";
 import { formatAddress, formatCurrencyVN } from "../../utils/Format";
+import { useEffect } from "react";
+import { checkout } from "../../services/userServices/orderService";
 
 export default function TrackingPage() {
   const [stage, setStage] = useState("pending");
   const navigate = useNavigate();
   const location = useLocation();
+  const [order, setOrder] = useState(location.state?.tmp || {});
   const cart = location.state?.cart || [];
-  const order = location.state?.tmp || {};
   const subtotal = location.state?.subtotal || 0;
   const discount = location.state?.discount || 0;
   const orderStage = ["pending", "cooking", "delivering", "completed"];
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const status = queryParams.get("status");
+    if (status && status == 1) {
+      const storedOrder = localStorage.getItem("orderData");
+      checkout(storedOrder).then((res) => {
+        localStorage.removeItem("orderData");
+        setOrder(res);
+      });
+    }
+  }, [location]);
 
   const isActive = (current) => {
     return orderStage.indexOf(stage) >= orderStage.indexOf(current);
