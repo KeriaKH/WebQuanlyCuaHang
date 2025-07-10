@@ -9,35 +9,52 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalo from "../../assets/zalopay.png";
 import OrderItem from "../../components/hostRes/OrderItem";
 import { formatAddress, formatCurrencyVN } from "../../utils/Format";
 import { useEffect } from "react";
-import { checkout } from "../../services/userServices/orderService";
+import {
+  checkout,
+  getOrderById,
+} from "../../services/userServices/orderService";
 
 export default function TrackingPage() {
-  const [stage, setStage] = useState("pending");
+  const [stage, setStage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const [order, setOrder] = useState(location.state?.tmp || {});
-  const cart = location.state?.cart || [];
-  const subtotal = location.state?.subtotal || 0;
-  const discount = location.state?.discount || 0;
   const orderStage = ["pending", "cooking", "delivering", "completed"];
+  const { id } = useParams();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const status = queryParams.get("status");
-    if (status && status == 1) {
-      const storedOrder = localStorage.getItem("orderData");
-      checkout(storedOrder).then((res) => {
-        localStorage.removeItem("orderData");
-        setOrder(res);
-      });
+    const storedOrder = localStorage.getItem("orderData");
+    if (status === "1" && storedOrder) {
+      const orderData = JSON.parse(storedOrder); // convert từ string về object
+      const processCheckout = async () => {
+        try {
+          const res = await checkout(orderData);
+          console.log(res);
+          setStage(res.order_status);
+          setOrder(res);
+          localStorage.removeItem("orderData");
+          navigate(`/tracking/${res._id}`, { replace: true }); // `replace` để không lưu lịch sử redirect
+        } catch (err) {
+          console.error("Lỗi khi checkout:", err);
+        }
+      };
+      processCheckout();
     }
-  }, [location]);
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (id !== 0) {
+      getOrderById(id).then((res) => setOrder(res));
+    }
+  }, [id]);
 
   const isActive = (current) => {
     return orderStage.indexOf(stage) >= orderStage.indexOf(current);
@@ -124,10 +141,10 @@ export default function TrackingPage() {
               <div className="size-4 bg-green-500 rounded-full"></div>
               <span className="font-semibold">Giao đến</span>
             </div>
-            <p className="font-semibold">{order.address.title}</p>
+            <p className="font-semibold">{order.address?.title}</p>
             <p className="flex items-center space-x-1">
               <FontAwesomeIcon icon={faPhone} />
-              <span>{order.address.phone}</span>
+              <span>{order.address?.phone}</span>
             </p>
             <p className="flex items-center space-x-1">
               <FontAwesomeIcon icon={faLocationDot} />
@@ -144,27 +161,27 @@ export default function TrackingPage() {
         </div>
         <div className="space-y-10 w-full">
           <div className="space-y-7 p-5 bg-gray-200 rounded-2xl">
-            {cart.map((item, index) => (
+            {order.orderItem.map((item, index) => (
               <OrderItem key={index} orderItem={item} />
             ))}
           </div>
           <hr />
           <div className="space-y-5 ml-auto">
-            <p className="font-bold">Tổng {cart.length} món</p>
+            <p className="font-bold">Tổng {order.orderItem.length} món</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
-              <p>{formatCurrencyVN(subtotal)}</p>
+              <p>{formatCurrencyVN(order.summary-30000+(order.voucherId.value || 0))}</p>
             </div>
             <div className="flex justify-between text-red-500">
               <p>Giảm giá</p>
-              <p>- {formatCurrencyVN(discount.value)}</p>
+              <p>- {formatCurrencyVN(order.voucherId.value)}</p>
             </div>
             <div className="flex justify-between">
               <p>Phí vận chuyển</p>
               <p>{formatCurrencyVN(30000)}</p>
             </div>
             <p className="text-end mt-7 text-2xl font-semibold text-green-600">
-              {formatCurrencyVN(subtotal - (discount.value || 0) + 30000)}
+              {formatCurrencyVN(order.summary)}
             </p>
           </div>
         </div>

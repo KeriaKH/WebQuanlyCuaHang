@@ -64,10 +64,7 @@ export default function PaymentPage() {
       summary:subtotal + 30000 - (discount.value || 0)
     };
     if (paymentMethod === "cod") {
-      await checkout(tmp).then((res) => console.log(res));
-      navigate("/tracking", {
-        state: { cart, tmp, subtotal, discount },
-      });
+      await checkout(tmp).then((res) => navigate(`/tracking/${res.id}`));
     } else {
       localStorage.setItem("orderData", JSON.stringify(tmp));
       await checkoutWithZaloPay(tmp).then((res) => {

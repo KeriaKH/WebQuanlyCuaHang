@@ -13,7 +13,7 @@ const config = {
 
 
 const createOrderWithZaloPay = async (req, res) => {
-  const embed_data = { redirecturl: "http://localhost:5173/tracking" };
+  const embed_data = { redirecturl: "http://localhost:5173/tracking/0" };
 
   const orderData=req.body
   const items = [{}];
