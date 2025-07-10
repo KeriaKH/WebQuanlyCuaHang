@@ -15,6 +15,7 @@ const config = {
 const createOrderWithZaloPay = async (req, res) => {
   const embed_data = { redirecturl: "http://localhost:5173/tracking" };
 
+  const orderData=req.body
   const items = [{}];
   const transID = Math.floor(Math.random() * 1000000);
   const order = {
