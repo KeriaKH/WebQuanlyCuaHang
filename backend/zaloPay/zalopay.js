@@ -57,8 +57,6 @@ const createOrderWithZaloPay = async (req, res) => {
 };
 
 const callbackZaloPay = async (req, res) => {
-  let result = {};
-
   try {
     let dataStr = req.body.data;
     let reqMac = req.body.mac;
@@ -68,18 +66,14 @@ const callbackZaloPay = async (req, res) => {
 
     // kiểm tra callback hợp lệ (đến từ ZaloPay server)
     if (reqMac !== mac) {
-      // callback không hợp lệ
-      result.return_code = -1;
-      result.return_message = "mac not equal";
+      return res.redirect(`http://localhost:5173/tracking?payment=success`);
     } else {
-      result.return_code = 1;
-      result.return_message = "success";
+      return res.redirect(`http://localhost:5173/tracking?payment=success`);
     }
-  } catch (ex) {
-    result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
-    result.return_message = ex.message;
+  } catch (error) {
+    console.error("Callback error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-  return res.status(200).json(result) 
 };
 
-module.exports = { createOrderWithZaloPay,callbackZaloPay };
+module.exports = { createOrderWithZaloPay, callbackZaloPay };
