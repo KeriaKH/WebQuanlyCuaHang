@@ -58,7 +58,7 @@ const UserPage = () => {
           </div>
         </div>
       </div>
-      <div className=" bg-gray-200 p-4 space-y-3 rounded-2xl grid grid-cols-3 gap-5">
+      <div className=" bg-gray-200 p-4 rounded-2xl grid grid-cols-3 gap-5">
           {user?.map((item, index) => <UserItem key={index} item={item} />)}
       </div>
       <Pagination
