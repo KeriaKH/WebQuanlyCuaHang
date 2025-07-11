@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CartItem from "../../components/CartItem";
 import { useAuth } from "../../components/common/AuthContext";
-import VoucherPopUp from "../../components/voucherPopUp";
+import VoucherPopUp from "../../components/VoucherPopUp";
 import {
   deleteCartItem,
   getCart,
