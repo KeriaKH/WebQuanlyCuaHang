@@ -8,11 +8,11 @@ import Pagination from "../../components/Pagination";
 
 const UserPage = () => {
   const LIMIT=10;
-  const [user, setUser] = useState();
-  const [count, setCount] = useState();
-  const [search,setSearch]=useState()
-  const [dateSort,setDateSort]=useState()
-  const [page,setPage]=useState()
+  const [user, setUser] = useState([]);
+  const [count, setCount] = useState(0);  
+  const [search,setSearch]=useState("")
+  const [dateSort,setDateSort]=useState(0)
+  const [page,setPage]=useState(1)
 
   useEffect(() => {
     getUser(page,LIMIT,search,"createdAt",dateSort).then((res) => {

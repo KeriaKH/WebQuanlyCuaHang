@@ -1,9 +1,35 @@
-import React from "react";
-import { formatDateVN, formatDateVN1, formatDateVN2 } from "../../utils/Format";
+import {
+  faCalendar,
+  faCheck,
+  faClock,
+  faPenToSquare,
+  faUser,
+  faUsers,
+  faX,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar, faClock, faUser, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
+import { formatDateVN, formatDateVN1 } from "../../utils/Format";
+import { updateUser } from "../../services/userServices/profileService";
 
-export default function UserItem({item}) {
+export default function UserItem({ item }) {
+  const [currentRole, setCurrentRole] = useState(item.role);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Handle edit mode
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = () => {
+    if (currentRole !== item.role) updateUser(item._id, { role: currentRole });
+    setIsEditing(false);
+  };
+
+  const handleCancelClick = () => {
+    setCurrentRole(item.role); // Reset to original role
+    setIsEditing(false);
+  };
 
   // Calculate age from DOB
   const calculateAge = (dobString) => {
@@ -53,14 +79,52 @@ export default function UserItem({item}) {
 
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(
-              item.role
-            )}`}
-          >
-            <FontAwesomeIcon icon={faUsers} className="w-3 h-3 mr-1" />
-            {item.role}
-          </span>
+          <div className="flex items-center space-x-2">
+            {!isEditing ? (
+              <>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(
+                    currentRole
+                  )}`}
+                >
+                  <FontAwesomeIcon icon={faUsers} className="w-3 h-3 mr-1" />
+                  {currentRole}
+                </span>
+                <button
+                  onClick={handleEditClick}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Sửa vai trò"
+                >
+                  <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <select
+                  value={currentRole}
+                  onChange={(e) => setCurrentRole(e.target.value)}
+                  className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <button
+                  onClick={handleSaveClick}
+                  className="p-1 text-green-600 hover:text-green-800 transition-colors"
+                  title="Lưu"
+                >
+                  <FontAwesomeIcon icon={faCheck} className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={handleCancelClick}
+                  className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                  title="Hủy"
+                >
+                  <FontAwesomeIcon icon={faX} className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -68,7 +132,10 @@ export default function UserItem({item}) {
       <div className="space-y-3">
         {/* Date of Birth */}
         <div className="flex items-center space-x-3">
-          <FontAwesomeIcon icon={faCalendar} className="w-4 h-4 text-gray-400" />
+          <FontAwesomeIcon
+            icon={faCalendar}
+            className="w-4 h-4 text-gray-400"
+          />
           <div>
             <span className="text-sm font-medium text-gray-700">
               Ngày sinh:
@@ -84,7 +151,9 @@ export default function UserItem({item}) {
           <div className="w-4 h-4 flex items-center justify-center">
             <div
               className={`w-3 h-3 rounded-full ${
-                item.gender.toLowerCase() === "nam" ? "bg-blue-400" : "bg-pink-400"
+                item.gender.toLowerCase() === "nam"
+                  ? "bg-blue-400"
+                  : "bg-pink-400"
               }`}
             ></div>
           </div>
