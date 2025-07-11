@@ -3,7 +3,8 @@ const User = require("../models/user");
 const signUp = async (req, res) => {
   try {
     const data = req.body;
-    if (await User.findOne({ email }))
+    console.log(data)
+    if (await User.findOne({ email:data.email }))
       return res.status(400).json({ message: "email đã tồn tại" });
     const user = await User.create(data);
     return res.status(200).json({ message: "Thành Công" });

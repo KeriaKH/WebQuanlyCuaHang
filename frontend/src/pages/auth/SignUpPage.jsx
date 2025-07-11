@@ -66,8 +66,7 @@ export default function SignUpPage() {
           <div className="text-white border-b py-2 text-xl space-x-2 opacity-90 flex items-center mt-4">
             <FontAwesomeIcon icon={faVenusMars} />
             <select
-              name=""
-              id=""
+              value={data.gender}
               className="w-full focus:outline-none"
               onChange={(e) => setData({ ...data, gender: e.target.value })}
             >
