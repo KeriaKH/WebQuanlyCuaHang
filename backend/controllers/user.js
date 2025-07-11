@@ -2,13 +2,11 @@ const User = require("../models/user");
 
 const signUp = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const data = req.body;
     if (await User.findOne({ email }))
       return res.status(400).json({ message: "email đã tồn tại" });
-    const user = await User.create({ name, email, password });
-    return res
-      .status(200)
-      .json({ id: user._id, name: user.name, email: user.email });
+    const user = await User.create(data);
+    return res.status(200).json({ message: "Thành Công" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
@@ -43,8 +41,11 @@ const getUser = async (req, res) => {
     const sort = {
       [sortBy]: Number(sortOrder),
     };
-    const skip=(page-1)*limit
-    const user = await User.find(filter).select("-password -cart -address").sort(sort).skip(skip);
+    const skip = (page - 1) * limit;
+    const user = await User.find(filter)
+      .select("-password -cart -address")
+      .sort(sort)
+      .skip(skip);
     const count = await User.countDocuments();
     return res.status(200).json({ user, count });
   } catch (error) {
