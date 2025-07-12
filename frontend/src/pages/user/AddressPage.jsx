@@ -16,14 +16,7 @@ export default function AddressPage() {
   const [addresses, setAddresses] = useState([]);
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    province: "",
-    district: "",
-    ward: "",
-    title: "",
-    detailed_address: "",
-    phone: "",
-  });
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     getAddress(user.id).then((res) => {
@@ -68,9 +61,13 @@ export default function AddressPage() {
 
   // Lưu địa chỉ (thêm mới hoặc cập nhật)
   const handleSave = async () => {
-    const isFilled = Object.values(formData).every(
-      (value) => value && value.trim() !== ""
-    );
+    const isFilled =
+      formData.province?.trim() &&
+      formData.district?.trim() &&
+      formData.ward?.trim() &&
+      formData.title?.trim() &&
+      formData.detailed_address?.trim() &&
+      formData.phone?.trim();
 
     if (!isFilled) {
       toast.warning("Vui lòng điền đủ thông tin");
