@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const [account, setAccount] = useState({ email: "", password: "" });
@@ -22,7 +23,9 @@ export default function LoginPage() {
     if (res.token) {
       if (res.role === "admin") nav("/Dashboard");
       else nav("/");
-    } else alert("đăng nhập thất bại");
+    } else {
+      toast.error(res.message);
+    }
   };
 
   return (
