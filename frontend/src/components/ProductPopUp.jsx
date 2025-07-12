@@ -7,6 +7,7 @@ import {
 } from "../services/userServices/dishService";
 import { formatCurrencyVN } from "../utils/Format";
 import { useAuth } from "./common/AuthContext";
+import { toast } from "react-toastify";
 
 export default function ProductPopUp({
   cartItem,
@@ -79,6 +80,7 @@ export default function ProductPopUp({
       return;
     }
     await addCartItem(user.id, data);
+    toast.success("Đã thêm món ăn vào giỏ hàng")
     handleClose(false);
   };
 

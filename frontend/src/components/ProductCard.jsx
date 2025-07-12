@@ -1,26 +1,19 @@
 import { useState } from "react";
 import ProductPopUp from "./ProductPopUp";
 import { formatCurrencyVN } from "../utils/Format";
-
+import { toast } from "react-toastify";
 
 export default function ProductCard({
   productDetail,
   token,
   quantity,
   reloadShop,
-  shopActive
 }) {
   const [showPopUp, setShowPopup] = useState(false);
-
-  const handleShowPopUp=()=>{
-    if(shopActive)
-      if(productDetail.active)
-        setShowPopup(true)
-      else
-        alert("Hiện tại món ăn không khả dụng !!!")
-    else
-      alert("Hiện tại cửa hàng đang tạm nghỉ !!!")
-  }
+  const handleShowPopUp = () => {
+    if (productDetail.active) setShowPopup(true);
+    else toast.warning("Hiện tại món ăn không khả dụng !!!");
+  };
   return (
     <>
       <div

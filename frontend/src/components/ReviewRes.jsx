@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "./common/AuthContext";
 import { addReview } from "../services/userServices/reviewService";
+import { toast } from "react-toastify";
 
 export default function ReviewRes({
   handleClose,
@@ -28,7 +29,7 @@ export default function ReviewRes({
     };
     console.log(reviewData);
     if (reviewData.comment.trim() === "" || reviewData.star === 0) {
-      alert("vui lòng điền bình luận và chọn số sao");
+      toast.warning("vui lòng điền bình luận và chọn số sao");
       return;
     }
     console.log(reviewData);

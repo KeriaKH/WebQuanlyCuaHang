@@ -40,7 +40,7 @@ export const signUp = async (data) => {
     if (res.data) return res.data;
     else return {};
   } catch (error) {
-    if (error.response.status === 400) alert(error.response.data.message);
+    return {message: error.response?.data?.error || "Đã xảy ra lỗi khi đăng ký"};
   }
 };
 

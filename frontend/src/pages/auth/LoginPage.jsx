@@ -21,6 +21,7 @@ export default function LoginPage() {
     const res = await Login(account.email, account.password);
     console.log(res);
     if (res.token) {
+      toast.success("Đăng nhập thành công");
       if (res.role === "admin") nav("/Dashboard");
       else nav("/");
     } else {
@@ -70,12 +71,12 @@ export default function LoginPage() {
           </Link>
         </div>
         <button
-          className="w-[90%] mx-auto bg-lime-500 p-3 text-xl text-white rounded-3xl mt-5"
+          className="w-[90%] mx-auto bg-lime-500 p-3 text-xl text-white rounded-3xl "
           onClick={handleLogin}
         >
           Login
         </button>
-        <p className="text-center text-white my-auto font-light">
+        <p className="text-center text-white font-light">
           Don’t have an account?{" "}
           <Link to={"/signup"}>
             <span className="text-lime-500">Sign Up</span>

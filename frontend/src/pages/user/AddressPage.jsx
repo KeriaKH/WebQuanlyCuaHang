@@ -10,6 +10,7 @@ import {
   getAddress,
   updateAddress,
 } from "../../services/userServices/addressService";
+import { toast } from "react-toastify";
 
 export default function AddressPage() {
   const [addresses, setAddresses] = useState([]);
@@ -39,7 +40,7 @@ export default function AddressPage() {
   // Xóa địa chỉ
   const handleDelete = async (address) => {
     if (address?.default) {
-      alert("Không thể xóa địa chỉ mặc định!");
+      toast.warning("Không thể xóa địa chỉ mặc định!");
       return;
     }
     await deleteAddress(user.id, address._id);
@@ -62,7 +63,7 @@ export default function AddressPage() {
   // Lưu địa chỉ (thêm mới hoặc cập nhật)
   const handleSave = async () => {
     if (!formData.title.trim() || !formData.detailed_address.trim()) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+      toast.warning("Vui lòng điền đầy đủ thông tin!");
       return;
     }
 

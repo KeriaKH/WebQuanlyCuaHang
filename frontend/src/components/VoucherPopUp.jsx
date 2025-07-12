@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import VoucherCard from "./VoucherCard";
+import { toast } from "react-toastify";
 
 export default function VoucherPopUp({
   handleClose,
@@ -10,11 +11,11 @@ export default function VoucherPopUp({
   const selectRef = useRef(null);
   const [voucherCode, setVoucherCode] = useState("");
 
-  const handleSelect = () => {
+  const handleFound = () => {
     if (!voucherCode) return;
     const found = vouchers.find((v) => v.code === voucherCode);
     if (found) onSelectVoucher(found);
-    else alert("Mã giảm giá không hợp lệ!");
+    else toast.warning("Mã giảm giá không hợp lệ!");
   };
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function VoucherPopUp({
           />
           <button
             className="text-white p-3 px-5 bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-2xl"
-            onClick={handleSelect}
+            onClick={handleFound}
           >
             Áp dụng
           </button>

@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import img from "../assets/voucher.png";
 import { formatCurrencyVN } from "../utils/Format";
 
@@ -6,7 +7,7 @@ export default function VoucherCard({ voucher, onSelect,subtotal }) {
     if(subtotal>=voucher.minimum)
       onSelect()
     else
-      alert("chưa đủ điều kiện sử dụng voucher")
+      toast.warning("chưa đủ điều kiện sử dụng voucher")
   }
   return (
     <div

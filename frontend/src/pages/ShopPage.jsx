@@ -12,6 +12,7 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../components/common/AuthContext";
+import { toast } from "react-toastify";
 
 export default function ShopPage() {
   const { id } = useParams();
@@ -79,13 +80,18 @@ export default function ShopPage() {
   };
 
   const handleAddCart = async () => {
+    if(!dish.available)
+    {
+      toast.warning("Món ăn hiện tại không khả dụng")
+      return 
+    }
     if (dish.option.length !== data.selectedOptions.length) {
       setShowError(true);
       setTimeout(() => setShowError(false), 2000);
       return;
     }
-    console.log(data);
     await addCartItem(user.id, data);
+    toast.success("Thêm món thành công")
   };
 
   return (
@@ -126,7 +132,7 @@ export default function ShopPage() {
             {dish.option?.map((item, index) => (
               <div key={index} className="flex space-x-3">
                 <p className="font-semibold text-xl">{item.optionName} :</p>
-                <div className="w-[67%]">
+                <div className="w-[70%]">
                   {item.choices?.map((item1, index1) => (
                     <div
                       className="flex justify-between space-y-2"

@@ -14,6 +14,7 @@ import {
   updateUser,
 } from "../../services/userServices/profileService";
 import { formatDateVN2 } from "../../utils/Format";
+import { toast } from "react-toastify";
 
 export default function ProfilePage() {
   const [showPopUp, setShowPopup] = useState(false);
@@ -33,12 +34,12 @@ export default function ProfilePage() {
         "image/webp",
       ];
       if (!allowedTypes.includes(file.type)) {
-        alert("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
+        toast.error("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
         return;
       }
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
+        toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
         return;
       }
       setFileSelected(file);
@@ -55,7 +56,7 @@ export default function ProfilePage() {
       (value) => value && value.trim() !== ""
     );
     if (!isFilled) {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
     let tmp = {
@@ -80,7 +81,7 @@ export default function ProfilePage() {
     setFileSelected(null);
     setPreviewImage(null);
     setIsUpLoading(false);
-    alert("Cập nhật thông tin thành công");
+    toast.success("Cập nhật thông tin thành công");
   };
 
   useEffect(() => {

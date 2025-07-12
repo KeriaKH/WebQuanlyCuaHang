@@ -5,6 +5,7 @@ import CategoryItem from "../../components/hostRes/CategoryItem";
 
 import { addVoucher, deleteVoucher, getAllVoucher, updateVoucher } from "../../services/userServices/voucherService";
 import { formatDateVN2 } from "../../utils/Format";
+import { toast } from "react-toastify";
 
 export default function VoucherPage() {
   const [isAdd, setIsAdd] = useState("");
@@ -39,7 +40,7 @@ export default function VoucherPage() {
       (item) => item && item.toString().trim() !== ""
     );
     if (!isFilled) {
-      alert("nhập đủ thông tin của voucher");
+      toast.error("nhập đủ thông tin của voucher");
       return;
     }
     if (isAdd === "add") await addVoucher(voucherWithoutId);

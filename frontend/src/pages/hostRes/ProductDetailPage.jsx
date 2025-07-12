@@ -21,6 +21,7 @@ import {
   updateDish,
 } from "../../services/userServices/dishService";
 import { formatCurrencyVN } from "../../utils/Format";
+import { toast } from "react-toastify";
 
 export default function ProductDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -132,12 +133,12 @@ export default function ProductDetailPage() {
         "image/webp",
       ];
       if (!allowedTypes.includes(file.type)) {
-        alert("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
+        toast.error("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
         return;
       }
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
+        toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
         return;
       }
       setFileSelected(file);

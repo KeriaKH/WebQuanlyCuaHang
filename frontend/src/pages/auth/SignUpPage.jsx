@@ -10,6 +10,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { signUp } from "../../services/authServices/authServices";
+import { toast } from "react-toastify";
 
 export default function SignUpPage() {
   const [data, setData] = useState({
@@ -26,13 +27,13 @@ export default function SignUpPage() {
       (value) => value && value.trim() !== ""
     );
     if (!isFilled) {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
     console.log(data);
     signUp(data).then((res) => {
       if (res && res.id) {
-        alert("tạo tài khoản thành công");
+        toast.success("Tạo tài khoản thành công");
         nav("/login");
       }
     });

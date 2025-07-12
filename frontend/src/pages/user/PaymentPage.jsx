@@ -11,6 +11,7 @@ import {
   checkoutWithZaloPay,
 } from "../../services/userServices/orderService";
 import { formatAddress, formatCurrencyVN } from "../../utils/Format";
+import { toast } from "react-toastify";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
@@ -47,7 +48,7 @@ export default function PaymentPage() {
   const handleSubmit = async () => {
     const isFilled = order.address && order.paymentMethod;
     if (!isFilled) {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+      toast.warning("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
     const tmp = {

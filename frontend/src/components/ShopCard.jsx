@@ -4,6 +4,7 @@ import { formatCurrencyVN } from "../utils/Format";
 import ProductPopUp from "./ProductPopUp";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 
 export default function ShopCard({ dishDetail }) {
   const [showProductPopUp, setShowProductPopUp] = useState(false);
@@ -11,6 +12,15 @@ export default function ShopCard({ dishDetail }) {
 
   function handleMove() {
     navigate(`shop/${dishDetail._id}`);
+  }
+
+  function handleShowPopUp(){
+    if(!dishDetail.available)
+    {
+      toast.warning("Món ăn hiện tại không khả dụng")
+      return
+    }
+    setShowProductPopUp(true)
   }
 
   return (
@@ -36,7 +46,7 @@ export default function ShopCard({ dishDetail }) {
               {dishDetail.name}
             </h3>
           </div>
-          <p className="text-gray-500 text-sm">{dishDetail.description}</p>
+          <p className="text-gray-500 text-sm text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2]">{dishDetail.description}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="flex items-center">
@@ -61,7 +71,7 @@ export default function ShopCard({ dishDetail }) {
           </div>
           <button
             className="bg-[rgba(60,152,80,1)] hover:bg-green-800 transition border text-white p-2 text-lg font-semibold rounded-2xl w-full"
-            onClick={() => setShowProductPopUp(true)}
+            onClick={handleShowPopUp}
           >
             Đặt món
           </button>

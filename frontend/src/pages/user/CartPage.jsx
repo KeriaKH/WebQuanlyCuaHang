@@ -11,6 +11,7 @@ import {
 } from "../../services/userServices/dishService";
 import { formatCurrencyVN } from "../../utils/Format";
 import { getVoucher } from "../../services/userServices/voucherService";
+import { toast } from "react-toastify";
 
 export default function CartPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -39,7 +40,7 @@ export default function CartPage() {
 
   const handlePayment = () => {
     if(cart.length<=0)
-      return alert("vui lòng thêm món ăn vào giỏ hàng")
+      return toast.warning("vui lòng thêm món ăn vào giỏ hàng")
     navigate("/payment", {
       state: {
         cart: cart,

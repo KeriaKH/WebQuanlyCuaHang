@@ -5,7 +5,7 @@ const signUp = async (req, res) => {
     const data = req.body;
     console.log(data)
     if (await User.findOne({ email:data.email }))
-      return res.status(400).json({ message: "email đã tồn tại" });
+      return res.status(400).json({ error: "email đã tồn tại" });
     const user = await User.create(data);
     return res.status(200).json({ message: "Thành Công" });
   } catch (error) {

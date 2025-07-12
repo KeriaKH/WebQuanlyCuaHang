@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { uploadImage } from "../../services/cloudinary";
 import { getCategories } from "../../services/userServices/categoryService";
 import { addDish } from "../../services/userServices/dishService";
+import { toast } from "react-toastify";
 
 export default function AddProduct() {
   const nav = useNavigate();
@@ -22,7 +23,6 @@ export default function AddProduct() {
   const [categories, setcategories] = useState([]);
   useEffect(() => {
     getCategories().then((res) => {
-      console.log(res);
       setcategories(res.categories);
     });
   }, []);
@@ -37,12 +37,12 @@ export default function AddProduct() {
         "image/webp",
       ];
       if (!allowedTypes.includes(file.type)) {
-        alert("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
+        toast.error("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
         return;
       }
       const maxSize = 5 * 107 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
+        toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
         return;
       }
       setFileSelected(file);
@@ -66,8 +66,7 @@ export default function AddProduct() {
 
   const handleAdd = async () => {
     if (!isDishDataValid()) {
-      alert("vui lòng điền đủ thông tin ngoại trừ lựa chọn");
-      console.log(dishData);
+      toast.warning("vui lòng điền đủ thông tin ngoại trừ lựa chọn");
       return;
     }
     try {
@@ -76,7 +75,7 @@ export default function AddProduct() {
       const tmp = { ...dishData, image: image.imageUrl };
       const res = await addDish(tmp);
       setIsUpLoading(false);
-      alert("Thêm món thành công");
+      toast.success("Thêm món thành công");
       nav(`/Product/${res._id}`);
     } catch (error) {
       console.log(error);
