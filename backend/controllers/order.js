@@ -69,7 +69,7 @@ const getOrder = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limit);
-    const count = order.length;
+    const count = await Order.countDocuments()
     return res.status(200).json({ order, count });
   } catch (error) {}
 };
