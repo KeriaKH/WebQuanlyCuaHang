@@ -27,8 +27,9 @@ export const login = async (email, password) => {
       message: response.data?.message || "Đăng nhập thất bại",
     };
   } catch (error) {
+    console.log(error);
     return {
-      message: error.response?.data?.message || "Đã xảy ra lỗi khi đăng nhập",
+      message: error.response?.data?.error || "Đã xảy ra lỗi khi đăng nhập",
     };
   }
 };
