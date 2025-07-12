@@ -62,9 +62,13 @@ export default function AddressPage() {
 
   // Lưu địa chỉ (thêm mới hoặc cập nhật)
   const handleSave = async () => {
-    if (!formData.title.trim() || !formData.detailed_address.trim()) {
-      toast.warning("Vui lòng điền đầy đủ thông tin!");
-      return;
+    const isFilled = Object.values(formData).every(
+      (value) => value && value.trim() !== ""
+    );
+
+    if(!isFilled)
+    {
+      toast.warning("Vui lòng điền đủ thông tin")
     }
 
     if (formData._id) {
@@ -80,8 +84,7 @@ export default function AddressPage() {
         )
       );
     } else {
-      const tmp=await addAddress(user.id, formData)
-      console.log("thêm địa chỉ thành công");
+      const tmp = await addAddress(user.id, formData);
       setAddresses([
         ...addresses.map((addr) =>
           tmp.default ? { ...addr, default: false } : addr
