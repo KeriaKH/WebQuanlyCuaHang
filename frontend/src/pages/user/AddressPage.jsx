@@ -69,6 +69,7 @@ export default function AddressPage() {
     if(!isFilled)
     {
       toast.warning("Vui lòng điền đủ thông tin")
+      return 
     }
 
     if (formData._id) {
