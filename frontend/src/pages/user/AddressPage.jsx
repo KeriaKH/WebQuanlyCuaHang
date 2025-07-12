@@ -23,7 +23,6 @@ export default function AddressPage() {
     title: "",
     detailed_address: "",
     phone: "",
-    default: false,
   });
 
   useEffect(() => {
