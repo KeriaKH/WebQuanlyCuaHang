@@ -36,7 +36,7 @@ const getOrderByUserId = async (req, res) => {
       .populate("orderItem.dishId")
       .skip(skip)
       .limit(limit);
-    const count = Order.countDocuments();
+    const count =await Order.countDocuments();
     return res.status(200).json({ order, count });
   } catch (error) {
     console.log(error);
