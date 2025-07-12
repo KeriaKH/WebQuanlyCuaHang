@@ -16,11 +16,18 @@ export default function AddressPage() {
   const [addresses, setAddresses] = useState([]);
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    province: "",
+    district: "",
+    ward: "",
+    title: "",
+    detailed_address: "",
+    phone: "",
+    default: false,
+  });
 
   useEffect(() => {
     getAddress(user.id).then((res) => {
-      console.log(res);
       setAddresses(res);
     });
   }, [user]);
@@ -66,10 +73,9 @@ export default function AddressPage() {
       (value) => value && value.trim() !== ""
     );
 
-    if(!isFilled)
-    {
-      toast.warning("Vui lòng điền đủ thông tin")
-      return 
+    if (!isFilled) {
+      toast.warning("Vui lòng điền đủ thông tin");
+      return;
     }
 
     if (formData._id) {

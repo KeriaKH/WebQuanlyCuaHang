@@ -37,7 +37,7 @@ export default function ShopCard({ dishDetail }) {
           alt={dishDetail.name}
           className="rounded-t-2xl w-full h-60 object-cover"
         />
-        <div className="p-2 space-y-1 flex flex-col justify-center">
+        <div className="p-2 space-y-1 flex flex-col justify-between">
           <div className="flex justify-between">
             <h3
               className="font-bold text-xl py-2 truncate cursor-pointer"
@@ -46,7 +46,7 @@ export default function ShopCard({ dishDetail }) {
               {dishDetail.name}
             </h3>
           </div>
-          <p className="text-gray-500 text-sm text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2]">{dishDetail.description}</p>
+          <p className="text-gray-500 text-sm">{dishDetail.description}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="flex items-center">
