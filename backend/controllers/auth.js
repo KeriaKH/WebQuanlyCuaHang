@@ -18,7 +18,6 @@ const login = async (req, res) => {
     if (!(await User.comparePassword(password))) {
       return res.status(400).json({ error: "Sai mật khẩu" });
     }
-
     return res.status(200).json({ User, token: createToken(User) });
   } catch (error) {
     console.log(error);
