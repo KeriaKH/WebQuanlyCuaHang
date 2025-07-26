@@ -30,12 +30,13 @@ export default function SignUpPage() {
       toast.error("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    console.log(data);
     signUp(data).then((res) => {
       if (res && res.id) {
         toast.success("Tạo tài khoản thành công");
         nav("/login");
+        return;
       }
+      toast.error(res.message || "Đăng ký thất bại");
     });
   };
   return (

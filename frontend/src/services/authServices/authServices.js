@@ -38,9 +38,14 @@ export const signUp = async (data) => {
   try {
     const res = await api.post(`/api/user/signUp`, data);
     if (res.data) return res.data;
-    else return {};
+    else
+      return {
+        message: res.data?.message || "Đăng ký thất bại",
+      };
   } catch (error) {
-    return {message: error.response?.data?.error || "Đã xảy ra lỗi khi đăng ký"};
+    return {
+      message: error.response?.data?.error || "Đã xảy ra lỗi khi đăng ký",
+    };
   }
 };
 

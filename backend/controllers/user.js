@@ -4,7 +4,8 @@ const signUp = async (req, res) => {
   try {
     const data = req.body;
     console.log(data)
-    if (await User.findOne({ email:data.email }))
+    const existingUser= await User.findOne({ email:data.email })
+    if (existingUser)
       return res.status(400).json({ error: "email đã tồn tại" });
     const user = await User.create(data);
     return res.status(200).json({ message: "Thành Công" });
