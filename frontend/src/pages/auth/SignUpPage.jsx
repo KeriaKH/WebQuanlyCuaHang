@@ -31,7 +31,7 @@ export default function SignUpPage() {
       return;
     }
     signUp(data).then((res) => {
-      if (res.message === "Thành Công") {
+      if (res.id) {
         toast.success("Tạo tài khoản thành công");
         nav("/login");
         return;

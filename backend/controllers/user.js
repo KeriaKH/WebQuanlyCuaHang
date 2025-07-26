@@ -3,12 +3,11 @@ const User = require("../models/user");
 const signUp = async (req, res) => {
   try {
     const data = req.body;
-    console.log(data)
     const existingUser= await User.findOne({ email:data.email })
     if (existingUser)
       return res.status(400).json({ error: "email đã tồn tại" });
     const user = await User.create(data);
-    return res.status(200).json({ message: "Thành Công" });
+    return res.status(200).json({ id: user._id, message: "Thành Công" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
