@@ -27,7 +27,6 @@ const getOrderByUserId = async (req, res) => {
   const { id } = req.params;
   const { page, limit, delivered } = req.query;
   try {
-    console.log(delivered);
     const skip = (page - 1) * limit;
     const order = await Order.find({
       userId: id,
@@ -36,7 +35,10 @@ const getOrderByUserId = async (req, res) => {
       .populate("orderItem.dishId")
       .skip(skip)
       .limit(limit);
-    const count =await Order.countDocuments();
+    const count = await Order.countDocuments({
+      userId: id,
+      order_status: delivered === "1" ? "delivered" : { $ne: "delivered" },
+    });
     return res.status(200).json({ order, count });
   } catch (error) {
     console.log(error);
