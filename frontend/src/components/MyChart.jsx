@@ -53,7 +53,7 @@ function MyChart({ type }) {
         };
 
   return (
-    <div className="bg-white p-2 rounded-lg shadow-lg">
+    <div className="bg-white p-2 rounded-lg shadow-lg flex-1">
       <ReactECharts option={option} style={{ height: "400px", width: "100%" }} />
     </div>
   );
