@@ -1,0 +1,40 @@
+name: Xây dựng và Đẩy Image lên Docker Hub
+
+# 1. KHI NÀO luồng này chạy?
+on:
+  push:
+    branches: [ "main" ] # Chạy mỗi khi có code mới đẩy lên nhánh 'main'
+
+# 2. LÀM NHỮNG VIỆC GÌ?
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest # Chạy trên một máy ảo Linux của GitHub
+
+    steps:
+      # Bước 2.1: Lấy code từ repo của bạn về máy ảo
+      - name: Lấy mã nguồn (Checkout)
+        uses: actions/checkout@v3
+
+      # Bước 2.2: Đăng nhập vào Docker Hub bằng chìa khóa đã cung cấp
+      - name: Đăng nhập Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Bước 2.3: Build và Push Backend
+      - name: Build và Push Backend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend # Trỏ tới thư mục chứa Dockerfile của backend
+          push: true
+          # Đặt tên image: username/tên-image:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-backend:latest 
+
+      # Bước 2.4: Build và Push Frontend
+      - name: Build và Push Frontend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend # Trỏ tới thư mục chứa Dockerfile của frontend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest

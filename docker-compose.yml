@@ -1,0 +1,37 @@
+services:
+  database:
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    
+  backend_app:
+    build: ./backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb+srv://22521672:vinh1234@laptrinhweb.ssc7zdf.mongodb.net/WebGiaoDoAn?retryWrites=true&w=majority
+      - JWT_SECRET=your_jwt_secret_key12345678
+      - JWT_EXPIRES_IN=3d
+      - CLOUDINARY_CLOUD_NAME=dwwyrgl2y
+      - CLOUDINARY_API_KEY=464141957984545
+      - CLOUDINARY_API_SECRET=guEupvlQWKa6cWdGVsTwx-CVVp0
+    depends_on:
+      - database
+  
+  frontend_app:
+    build: ./frontend
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_LOCAL_STORAGE_KEY=user_data
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend_app
+  
+volumes:
+  mongo_data:
