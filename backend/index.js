@@ -19,7 +19,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost",
+    origin: "web-quanly-cua-hang-ead3.vercel.app",
     credentials: true,
   })
 );

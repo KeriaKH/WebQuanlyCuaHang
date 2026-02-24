@@ -26,7 +26,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - VITE_API_URL=http://localhost:3000
+      - VITE_API_URL=https://my-backend-latest-2q7n.onrender.com
       - VITE_LOCAL_STORAGE_KEY=user_data
     stdin_open: true
     tty: true
