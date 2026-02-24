@@ -38,3 +38,6 @@ jobs:
           context: ./frontend # Trỏ tới thư mục chứa Dockerfile của frontend
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
+      
+      - name: Kích hoạt Render Deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
